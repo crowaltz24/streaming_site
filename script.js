@@ -74,11 +74,11 @@ function updateVideoFrame(tmdbID) {
         case 'vidsrc2':
             embedUrl = `https://vidsrc.cc/v3/embed/movie/${tmdbID}?autoPlay=false`;
             break;
-        case 'autoembed':
-            embedUrl = `https://player.autoembed.cc/embed/movie/${tmdbID}`;
-            break;
         case 'vidlink':
             embedUrl = `https://vidlink.pro/movie/${tmdbID}`;
+            break;
+        case 'autoembed':
+            embedUrl = `https://player.autoembed.cc/embed/movie/${tmdbID}`;
             break;
         case 'multiembed':
             embedUrl = `https://multiembed.mov/?video_id=${tmdbID}&tmdb=1`;
@@ -92,6 +92,35 @@ function updateVideoFrame(tmdbID) {
     const videoFrame = document.getElementById('video-frame');
     videoFrame.src = embedUrl;
     modal.style.display = 'block';
+
+    fetchMovieCredits(tmdbID);
+}
+
+function fetchMovieCredits(tmdbID) {
+    const tmdbCreditsUrl = `https://api.themoviedb.org/3/movie/${tmdbID}/credits?api_key=${apiKey}`;
+
+    fetch(tmdbCreditsUrl, {
+        headers: {
+            'Authorization': `Bearer ${accessToken}`
+        }
+    })
+        .then(response => response.json())
+        .then(data => {
+            const director = data.crew.find(member => member.job === 'Director');
+            const cast = data.cast.slice(0, 5); // top 5 actors
+
+            document.getElementById('director').innerHTML = `Director: <b>${director ? director.name : 'N/A'}</b>`;
+            if (cast.length > 0) {
+                let castHTML = `Cast:<br><br>${cast.map(actor => `<b>${actor.name}</b> as ${actor.character}`).join(', ')}`;
+                if (data.cast.length > 5) {
+                    castHTML += ', and more.'; // indicate more actors
+                }
+                document.getElementById('cast').innerHTML = castHTML;
+            } else {
+                document.getElementById('cast').textContent = 'Cast: N/A';
+            }
+        })
+        .catch(error => console.error('Error fetching movie credits:', error));
 }
 
 function searchMovies(title, page) {
@@ -115,8 +144,8 @@ function searchMovies(title, page) {
                     movieElement.classList.add('movie');
                     movieElement.innerHTML = `
                         <h2>${movie.title}</h2>
-                        <p>Year: ${movie.release_date.split('-')[0]}</p>
-                        <p>${movie.vote_average} ⭐</p>
+                        <p>${movie.release_date.split('-')[0]}</p>
+                        <p>${movie.vote_average.toFixed(1)} ⭐</p>
                         <img src="https://image.tmdb.org/t/p/w500${movie.poster_path}" alt="${movie.title} Poster" class="movie-poster" data-tmdbid="${movie.id}">
                     `;
 
@@ -167,8 +196,8 @@ function fetchPopularMovies(page) {
                     movieElement.classList.add('movie');
                     movieElement.innerHTML = `
                         <h2>${movie.title}</h2>
-                        <p>Year: ${movie.release_date.split('-')[0]}</p>
-                        <p>${movie.vote_average} ⭐</p>
+                        <p>${movie.release_date.split('-')[0]}</p>
+                        <p>${movie.vote_average.toFixed(1)} ⭐</p>
                         <img src="https://image.tmdb.org/t/p/w500${movie.poster_path}" alt="${movie.title} Poster" class="movie-poster" data-tmdbid="${movie.id}">
                     `;
 

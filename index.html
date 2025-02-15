@@ -1,10 +1,13 @@
 <!DOCTYPE html>
+<html lang="en">
 <head>
-    <title>121.6FLIX</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MOVIES :></title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body class="dark-theme">
-    <h1>121.6FLIX</h1>
+    <h1>MOVIES</h1>
     <h3>Watch for free!</h3>
     <div>
         <input type="text" id="search-input" placeholder="Enter movie title">
@@ -20,6 +23,10 @@
         <div class="modal-content">
             <span class="close-button">&times;</span>
             <iframe id="video-frame" width="640" height="360" frameborder="0" allowfullscreen></iframe>
+            <div id="movie-details">
+                <p id="director"></p>
+                <p id="cast"></p>
+            </div>
         </div>
     </div>
     <div id="server-container">
@@ -27,9 +34,9 @@
         <select id="server-select">
             <option value="vidsrc1">VidSrc 1</option>
             <option value="vidsrc2">VidSrc 2</option>
+            <option value="vidlink">VidLink</option>
             <option value="embed">&ltEmbed&gt</option>
             <option value="autoembed">AutoEmbed</option>
-            <option value="vidlink">VidLink</option>
             <option value="multiembed">MultiEmbed</option>
         </select>
         </p>
@@ -37,9 +44,9 @@
         <button id="scroll-to-top-button" style="display: none;">Back to Top</button>
     </div>
     <footer>
-        <p>With ❤️ from Abhay</p>
+        <p>Made with ❤️ by Abhay</p>
     </footer>
     <script src="script.js"></script>
-    <!-- <script src="script_omdb.js"></script> -->
+    <!-- <script src="omdb.js"></script> -->
 </body>
 </html>
