@@ -3,6 +3,7 @@ const accessToken = 'eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIwMmRhMDgxZDc3YjBmN2UxN2Q5OD
 let currentPage = 1;
 let currentSearch = '';
 let isSearching = false;
+let currentTmdbID = '';
 
 document.getElementById('search-button').addEventListener('click', () => {
     currentSearch = document.getElementById('search-input').value;
@@ -39,7 +40,7 @@ document.getElementById('home-button').addEventListener('click', () => {
     currentPage = 1;
     isSearching = false;
     document.getElementById('section-title').textContent = 'New and Popular Movies';
-    document.getElementById('search-input').value = '';
+    document.getElementById('search-input').value = ''; 
     fetchPopularMovies(currentPage);
 });
 
@@ -55,6 +56,43 @@ window.addEventListener('scroll', () => {
         scrollToTopButton.style.display = 'none';
     }
 });
+
+document.getElementById('server-select').addEventListener('change', () => {
+    if (currentTmdbID) {
+        updateVideoFrame(currentTmdbID);
+    }
+});
+
+function updateVideoFrame(tmdbID) {
+    const server = document.getElementById('server-select').value;
+    let embedUrl = '';
+
+    switch (server) {
+        case 'vidsrc1':
+            embedUrl = `https://vidsrc.cc/v2/embed/movie/${tmdbID}`;
+            break;
+        case 'vidsrc2':
+            embedUrl = `https://vidsrc.cc/v3/embed/movie/${tmdbID}?autoPlay=false`;
+            break;
+        case 'autoembed':
+            embedUrl = `https://player.autoembed.cc/embed/movie/${tmdbID}`;
+            break;
+        case 'vidlink':
+            embedUrl = `https://vidlink.pro/movie/${tmdbID}`;
+            break;
+        case 'multiembed':
+            embedUrl = `https://multiembed.mov/?video_id=${tmdbID}&tmdb=1`;
+            break;
+        case 'embed':
+            embedUrl = `https://embed.su/embed/movie/${tmdbID}`;
+            break;
+    }
+
+    const modal = document.getElementById('modal');
+    const videoFrame = document.getElementById('video-frame');
+    videoFrame.src = embedUrl;
+    modal.style.display = 'block';
+}
 
 function searchMovies(title, page) {
     const tmdbApiUrl = `https://api.themoviedb.org/3/search/movie?query=${title}&page=${page}&api_key=${apiKey}`;
@@ -85,32 +123,11 @@ function searchMovies(title, page) {
                     movieContainer.appendChild(movieElement);
                 });
 
-                // movie poster event listeners
+                // movie poster listeners
                 document.querySelectorAll('.movie-poster').forEach(poster => {
                     poster.addEventListener('click', (event) => {
-                        const tmdbID = event.target.getAttribute('data-tmdbid');
-                        const server = document.getElementById('server-select').value;
-                        let embedUrl = '';
-
-                        switch (server) {
-                            case 'vidsrc':
-                                embedUrl = `https://vidsrc.xyz/embed/movie?tmdb=${tmdbID}`;
-                                break;
-                            case 'autoembed':
-                                embedUrl = `https://player.autoembed.cc/embed/movie/${tmdbID}`;
-                                break;
-                            case 'vidlink':
-                                embedUrl = `https://vidlink.pro/movie/${tmdbID}`;
-                                break;
-                            case 'multiembed':
-                                embedUrl = `https://multiembed.mov/?video_id=${tmdbID}&tmdb=1`;
-                                break;
-                        }
-
-                        const modal = document.getElementById('modal');
-                        const videoFrame = document.getElementById('video-frame');
-                        videoFrame.src = embedUrl;
-                        modal.style.display = 'block';
+                        currentTmdbID = event.target.getAttribute('data-tmdbid');
+                        updateVideoFrame(currentTmdbID);
                     });
                 });
 
@@ -141,7 +158,7 @@ function fetchPopularMovies(page) {
         .then(data => {
             const movieContainer = document.getElementById('movie-container');
             if (page === 1) {
-                movieContainer.innerHTML = ''; // //clear previous results
+                movieContainer.innerHTML = ''; // clear previous results
             }
             if (data.results.length > 0) {
                 movieContainer.style.display = 'block';
@@ -158,32 +175,11 @@ function fetchPopularMovies(page) {
                     movieContainer.appendChild(movieElement);
                 });
 
-                // popular movie poster event listeners
+                // movie poster listeners
                 document.querySelectorAll('.movie-poster').forEach(poster => {
                     poster.addEventListener('click', (event) => {
-                        const tmdbID = event.target.getAttribute('data-tmdbid');
-                        const server = document.getElementById('server-select').value;
-                        let embedUrl = '';
-
-                        switch (server) {
-                            case 'vidsrc':
-                                embedUrl = `https://vidsrc.xyz/embed/movie?tmdb=${tmdbID}`;
-                                break;
-                            case 'autoembed':
-                                embedUrl = `https://player.autoembed.cc/embed/movie/${tmdbID}`;
-                                break;
-                            case 'vidlink':
-                                embedUrl = `https://vidlink.pro/movie/${tmdbID}`;
-                                break;
-                            case 'multiembed':
-                                embedUrl = `https://multiembed.mov/?video_id=${tmdbID}&tmdb=1`;
-                                break;
-                        }
-
-                        const modal = document.getElementById('modal');
-                        const videoFrame = document.getElementById('video-frame');
-                        videoFrame.src = embedUrl;
-                        modal.style.display = 'block';
+                        currentTmdbID = event.target.getAttribute('data-tmdbid');
+                        updateVideoFrame(currentTmdbID);
                     });
                 });
 
@@ -202,20 +198,20 @@ function fetchPopularMovies(page) {
         .catch(error => console.error('Error fetching movie data:', error));
 }
 
-// MODAL CLOSING CONTROLS
+// MODAL control
 document.querySelector('.close-button').addEventListener('click', () => {
     const modal = document.getElementById('modal');
     modal.style.display = 'none';
-    document.getElementById('video-frame').src = ''; // Stops vidoe
+    document.getElementById('video-frame').src = ''; // Stop the video
 });
 
 window.addEventListener('click', (event) => {
     const modal = document.getElementById('modal');
     if (event.target === modal) {
         modal.style.display = 'none';
-        document.getElementById('video-frame').src = ''; 
+        document.getElementById('video-frame').src = '';
     }
 });
 
-// page load fetches new & popular movies
+// fetch new & popular on page load
 fetchPopularMovies(currentPage);

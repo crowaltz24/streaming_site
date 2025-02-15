@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <head>
-    <title>MOVIES :></title>
+    <title>Movies :></title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body class="dark-theme">
@@ -11,19 +11,7 @@
         <button id="search-button">Search!</button>
         <button id="home-button">Home</button>
     </div>
-    <div id="server-container">
-        <p>Server:
-        <select id="server-select">
-            <option value="vidsrc">VidSrc</option>
-            <option value="autoembed">AutoEmbed</option>
-            <option value="vidlink">VidLink</option>
-            <option value="multiembed">MultiEmbed</option>
-        </select>
-        </p>
-        <button id="theme-toggle-button">Theme</button>
-        <button id="scroll-to-top-button" style="display: none;">Back to Top</button>
-    </div>
-    <p>Note: If one server doesn't work, try switching to another server.</p>
+    <p>Note: If a server doesn't work, try another server.</p>
     <h2 id="section-title">New and Popular Movies</h2>
     <div id="movie-container"></div>
     <button id="see-more-button" style="display: none;">See More</button>
@@ -32,6 +20,20 @@
             <span class="close-button">&times;</span>
             <iframe id="video-frame" width="640" height="360" frameborder="0" allowfullscreen></iframe>
         </div>
+    </div>
+    <div id="server-container">
+        <p>Server:
+        <select id="server-select">
+            <option value="vidsrc1">VidSrc 1</option>
+            <option value="vidsrc2">VidSrc 2</option>
+            <option value="embed">&ltEmbed&gt</option>
+            <option value="autoembed">AutoEmbed</option>
+            <option value="vidlink">VidLink</option>
+            <option value="multiembed">MultiEmbed</option>
+        </select>
+        </p>
+        <button id="theme-toggle-button">Change Theme</button>
+        <button id="scroll-to-top-button" style="display: none;">Back to Top</button>
     </div>
     <footer>
         <p>With ❤️ from Abhay</p>
