@@ -421,7 +421,7 @@ body.dark-theme .movie p {
 #settings-toggle {
     position: fixed;
     top: 30px;           
-    right: 30px;
+    right: 60px;
     width: 52px;            
     height: 52px;
     border-radius: 50%;
