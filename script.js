@@ -96,7 +96,7 @@ const ui = {
                  data-tmdbid="${movie.id}">
             <h2 title="${movie.title}">${movie.title}</h2>
             <p>${movie.release_date ? movie.release_date.split('-')[0] : 'N/A'}</p>
-            <p>${movie.vote_average.toFixed(1)} ⭐</p>
+            <p>${movie.vote_average ? movie.vote_average.toFixed(1) : 'N/A'} ⭐</p>
             <div class="movie-context-menu">
                 <button class="context-menu-item">Open in new tab</button>
             </div>
@@ -220,25 +220,71 @@ const ui = {
         const videoFrame = document.querySelector('#video-frame iframe');
         if (videoFrame) {
             videoFrame.src = embedUrl;
-            this.openModal();  // Use the openModal method
+            this.openModal();
         }
-        this.updateMovieCredits(tmdbID);
+        
+        // fetch both movie details and credits simultaneously
+        try {
+            const [details, credits] = await Promise.all([
+                api.getMovieDetails(tmdbID),
+                api.getMovieCredits(tmdbID)
+            ]);
+            
+            const descriptionElement = document.getElementById('movie-description');
+            if (descriptionElement) {
+                const overview = details.overview || 'No description available.';
+                const year = details.release_date ? `(${details.release_date.split('-')[0]})` : '';
+                
+                descriptionElement.innerHTML = `
+                    <h2 class="modal-movie-title">${details.title} ${year}</h2>
+                    <div class="movie-overview">
+                        <p>${overview}</p>
+                    </div>
+                    <button class="read-more-btn">Read More</button>
+                `;
+                
+                // READ MORE button check
+                const overviewDiv = descriptionElement.querySelector('.movie-overview');
+                const needsReadMore = overviewDiv.scrollHeight > overviewDiv.clientHeight;
+                if (needsReadMore) {
+                    overviewDiv.parentElement.classList.add('needs-read-more');
+                    
+                    const readMoreBtn = descriptionElement.querySelector('.read-more-btn');
+                    readMoreBtn.addEventListener('click', () => {
+                        overviewDiv.classList.toggle('expanded');
+                        readMoreBtn.textContent = overviewDiv.classList.contains('expanded') ? 
+                            'Read Less' : 'Read More';
+                    });
+                }
+            }
+            
+            this.updateMovieCredits(tmdbID, credits);
+        } catch (error) {
+            console.error('Error loading movie information:', error);
+        }
     },
 
     // get movie info
-    async updateMovieCredits(tmdbID) {
-        const data = await api.getMovieCredits(tmdbID);
-        const director = data.crew.find(member => member.job === 'Director');
-        const cast = data.cast.slice(0, 5);
-        document.getElementById('director').innerHTML = 
-            `Director: <b>${director ? director.name : 'N/A'}</b>`;
+    async updateMovieCredits(tmdbID, creditsData = null) {
+        try {
+            const data = creditsData || await api.getMovieCredits(tmdbID);
+            const director = data.crew.find(member => member.job === 'Director');
+            const cast = data.cast.slice(0, 5);
+            
+            document.getElementById('director').innerHTML = 
+                `Director: <b>${director ? director.name : 'N/A'}</b>`;
 
-        if (cast.length > 0) {
-            let castHTML = `Cast:<br>${cast.map(actor => 
-                `<b>${actor.name}</b> as ${actor.character}`).join(', ')}`;
-            if (data.cast.length > 5) castHTML += ', and more.';
-            document.getElementById('cast').innerHTML = castHTML;
-        } else {
+            if (cast.length > 0) {
+                let castHTML = `Cast:<br>${cast.map(actor => 
+                    `<b>${actor.name}</b> as ${actor.character}`).join(', ')}`;
+                if (data.cast.length > 5) castHTML += ', and more.';
+                document.getElementById('cast').innerHTML = castHTML;
+            } else {
+                document.getElementById('cast').textContent = 'Cast: N/A';
+            }
+        } catch (error) {
+            console.error('Error updating movie credits:', error);
+            document.getElementById('director').innerHTML = 'Director: <b>N/A</b>';
             document.getElementById('cast').textContent = 'Cast: N/A';
         }
     },
@@ -485,7 +531,6 @@ function setupEventListeners() {
     });
 }
 
-// Add this at the top level of the script (outside any function)
 document.addEventListener('click', (e) => {
     if (!e.target.closest('.movie-context-menu')) {
         document.querySelectorAll('.movie-context-menu').forEach(menu => {

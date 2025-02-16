@@ -16,10 +16,42 @@
     --light-hover: #eeeeee;
     --light-border: #dddddd;
 
-    --gradient: linear-gradient(135deg,rgba(255,255,255,0.15),rgba(219,112,147,0.15),rgba(147,112,219,0.2));
-    --button-border: rgba(255,255,255,0.2);
-}
+    --gradient: linear-gradient(135deg,
+        rgba(116, 185, 255, 0.9),
+        rgba(162, 210, 255, 1),
+        rgba(116, 185, 255, 0.9)
+    );
+    --button-border: rgba(0,0,0,0.1);
+    --button-hover: linear-gradient(135deg,
+        rgba(116, 185, 255, 1),
+        rgba(162, 210, 255, 1),
+        rgba(116, 185, 255, 1)
+    );
+    --accent-blue: #3498db;
 
+    /* HAVE TO DARKEN BECAUSE THE GEAR ISNT VISIBLE OTHERWISE */
+    --settings-gradient: linear-gradient(135deg,
+        rgba(41, 128, 185, 0.95),  
+        rgba(85, 160, 235, 1),     
+        rgba(41, 128, 185, 0.95)  
+    );
+    --settings-hover: linear-gradient(135deg,
+        rgba(41, 128, 185, 1),
+        rgba(85, 160, 235, 1),
+        rgba(41, 128, 185, 1)
+    );
+    
+    --gradient-dark: linear-gradient(135deg,
+        rgba(147,112,219,0.2),
+        rgba(219,112,147,0.2),
+        rgba(147,112,219,0.25)
+    );
+    --button-hover-dark: linear-gradient(135deg,
+        rgba(147,112,219,0.3),
+        rgba(219,112,147,0.3),
+        rgba(147,112,219,0.35)
+    );
+}
 
 
 
@@ -83,7 +115,7 @@ button {
     border-radius: 6px;
     background: var(--gradient);
     border: 1px solid var(--button-border);
-    color: var(--light-text);
+    color: rgba(0, 0, 0, 0.8);
     font-size: 0.9rem;
     font-weight: 500;
     cursor: pointer;
@@ -93,16 +125,18 @@ button {
 body.dark-theme button {
     color: var(--dark-text);
     border-color: var(--dark-border);
+    background: var(--gradient-dark);
+    border: 1px solid rgba(255,255,255,0.1);
 }
 
 button:hover {
     transform: translateY(-1px);
     box-shadow: 0 2px 8px rgba(147,112,219,0.15);
-    background: linear-gradient(135deg, 
-        rgba(255,255,255,0.2),
-        rgba(219,112,147,0.2),
-        rgba(147,112,219,0.25)
-    );
+    background: var(--button-hover);
+}
+
+body.dark-theme button:hover {
+    background: var(--button-hover-dark);
 }
 
 .see-more-button {
@@ -127,7 +161,7 @@ button:hover {
     height: 32px;
     font-size: 28px;
     line-height: 1;
-    color: var(--dark-secondary);
+    color: var(--light-secondary);
     cursor: pointer;
     background: none;
     border: none;
@@ -143,11 +177,18 @@ button:hover {
     margin-top: -2px;
 }
 
-close-button:hover {
+.close-button:hover {
+    color: var(--light-text);
+    background: var(--gradient);
+}
+
+body.dark-theme .close-button {
+    color: var(--dark-secondary);
+}
+
+body.dark-theme .close-button:hover {
     color: var(--dark-text);
-    background: rgba(255, 255, 255, 0.1);
-    transform: none;
-    box-shadow: none;
+    background: var(--gradient-dark);
 }
 
 
@@ -296,27 +337,46 @@ body.dark-theme .movie p {
 .movie-context-menu {
     display: none;
     position: absolute;
-    background: var(--dark-surface);
-    border: 1px solid var(--dark-border);
+    background: var(--light-surface); 
+    border: 1px solid var(--light-border); 
     border-radius: 4px;
     padding: 4px;
     z-index: 1000;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
+
+
+body.dark-theme .movie-context-menu {
+    background: var(--dark-surface);
+    border: 1px solid var(--dark-border);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* I KNOW YOU SHOULDNT USE !IMPORTANT BUT I DONT CARE IT WORKS for this */
 
 .context-menu-item {
     display: block;
     width: 100%;
     padding: 8px 12px;
-    border: none;
-    background: none;
-    color: var(--dark-text);
+    border: none !important;
+    background: none !important; 
+    color: var(--light-text); 
     cursor: pointer;
     white-space: nowrap;
     text-align: left;
+    transition: background-color 0.2s ease;
 }
 
 .context-menu-item:hover {
-    background: var(--dark-hover);
+    background: var(--light-hover) !important; 
+}
+
+body.dark-theme .context-menu-item {
+    color: var(--dark-text);
+}
+
+body.dark-theme .context-menu-item:hover {
+    background: var(--dark-hover) !important;
 }
 
 
@@ -333,28 +393,35 @@ body.dark-theme .movie p {
     background-color: rgba(0, 0, 0, 0.8);
     z-index: 999;
     backdrop-filter: blur(8px);
+    overflow-y: auto; /* scrolling */
+    scroll-behavior: smooth;
 }
 
 .modal.open {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
+    padding: 20px 0;
 }
 
 .modal-content {
-    background-color: var(--dark-surface);
+    background-color: var(--light-surface);
     margin: 30px;
     padding: 40px 24px 24px; 
-    width: 95%;
-    max-width: 900px;
+    width: 90%;
+    max-width: 800px;
     border-radius: 16px;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
     position: relative;
     display: flex;           
     flex-direction: column;  
+    min-height: min-content; /* content wont get cut off */
 }
 
-/* video player */
+body.dark-theme .modal-content {
+    background-color: var(--dark-surface);
+}
+
 #video-frame {
     width: 100%;
     height: 0;
@@ -378,16 +445,53 @@ body.dark-theme .movie p {
 
 #movie-details {
     text-align: center;
-    color: var(--dark-text);
+    color: var(--light-text);
     padding: 16px 0;
+    max-width: 650px;
+    margin: 0 auto;
+    width: 90%;
+    overflow-wrap: break-word; /* stop text overflow */
+}
+
+body.dark-theme #movie-details {
+    color: var(--dark-text);
 }
 
 #director, #cast {
     margin: 12px 0;
     line-height: 1.5;
+    text-align: center;
 }
 
+.modal::-webkit-scrollbar {
+    width: 8px;
+}
 
+.modal::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.modal::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+}
+
+.modal::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.modal-movie-title {
+    text-align: center;
+    margin: 0 0 16px 0;
+    font-size: 1.5rem;
+    color: var(--light-text);
+    line-height: 1.3;
+    padding: 0 20px;
+}
+
+body.dark-theme .modal-movie-title {
+    color: var(--dark-text);
+}
 
 
 
@@ -425,9 +529,9 @@ body.dark-theme .movie p {
     width: 52px;            
     height: 52px;
     border-radius: 50%;
-    background: var(--gradient);
-    border: 1px solid var(--button-border);
-    color: var(--light-text);
+    background: var(--settings-gradient);
+    border: 1px solid rgba(0,0,0,0.2);
+    color: rgba(0, 0, 0, 0.95);
     font-size: 1.5rem;
     cursor: pointer;
     display: flex;
@@ -435,6 +539,24 @@ body.dark-theme .movie p {
     justify-content: center;
     z-index: 1002;
     transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    text-shadow: 0 1px 2px rgba(255, 255, 255, 0.2);  
+}
+
+#settings-toggle:hover {
+    background: var(--settings-hover);
+    box-shadow: 0 4px 12px rgba(41, 128, 185, 0.3);
+}
+
+body.dark-theme #settings-toggle {
+    background: var(--gradient-dark);
+    border: 1px solid rgba(255,255,255,0.1);
+    box-shadow: none;
+    color: var(--dark-text);
+}
+
+body.dark-theme #settings-toggle:hover {
+    background: var(--button-hover-dark);
 }
 
 
@@ -446,6 +568,34 @@ body.dark-theme .movie p {
 
 /* mobile stuff (AI GENERATED LOL)*/
 @media (max-width: 768px) {
+    #server-container {
+        top: auto; /* Remove top positioning */
+        bottom: 80px; /* Position from bottom instead */
+        right: -250px;
+        transform: translateX(0);
+    }
+    
+    #server-container.open {
+        transform: translateX(-270px);
+    }
+    
+    #settings-toggle {
+        position: fixed;
+        top: auto; /* Remove top positioning */
+        bottom: 90px; /* Match container position */
+        right: 20px;
+        width: 48px;
+        height: 48px;
+        font-size: 1.3rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        z-index: 1002;
+    }
+
+    /* Adjust settings menu shadow in dark mode */
+    body.dark-theme #settings-toggle {
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+    }
+
     #server-container {
         top: 80px; /* Move up to avoid mobile navigation bars */
     }
@@ -469,6 +619,16 @@ body.dark-theme .movie p {
 
     .movie img {
         height: 240px; /* Adjust image height for mobile */
+    }
+}
+
+@media (max-width: 480px) {
+    #settings-toggle {
+        bottom: 85px;
+        right: 16px;
+        width: 44px;
+        height: 44px;
+        font-size: 1.2rem;
     }
 }
 
@@ -604,7 +764,7 @@ body.player-page {
     position: static; 
     padding: 8px 16px;
     font-size: 0.9rem;
-    background: var(--gradient);
+    background: var(--gradient-dark);
     border: 1px solid var(--button-border);
     color: var(--dark-text);
     border-radius: 6px;
@@ -617,8 +777,19 @@ body.player-page {
 .player-page #back-home:hover {
     transform: translateY(-1px);
     box-shadow: 0 2px 8px rgba(147,112,219,0.15);
-    background: linear-gradient(135deg,rgba(255,255,255,0.15),rgba(219,112,147,0.15),rgba(147,112,219,0.2));
-    border: rgba(255,255,255,0.2);
+    background: var(--button-hover-dark);
+}
+
+/* Dark theme specific */
+body.dark-theme .player-page #back-home {
+    background: var(--gradient-dark);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: var (--dark-text);
+}
+
+body.dark-theme .player-page #back-home:hover {
+    background: var(--button-hover-dark);
+    box-shadow: 0 2px 8px rgba(147,112,219,0.15);
 }
 
 .player-page #movie-info {
@@ -639,4 +810,120 @@ body.player-page {
     margin: 0;
     color: var(--dark-secondary);
     font-size: 0.9rem;
+}
+
+.player-page #movie-info p,
+.player-page .movie-overview {
+    margin: 12px 0;
+    line-height: 1.5;
+    text-align: center;
+    color: var(--dark-secondary);
+    font-size: 0.9rem;
+}
+
+
+
+
+
+
+
+
+
+.movie-overview {
+    max-height: 60px;
+    overflow: hidden;
+    position: relative;
+    transition: all 0.3s ease;
+    line-height: 1.6;
+    margin-bottom: 12px;
+    color: var(--light-secondary);
+    font-size: 0.95rem;
+    text-align: center;
+}
+
+body.dark-theme .movie-overview {
+    color: var(--dark-secondary);
+}
+
+.movie-overview:not(.expanded)::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 24px;
+    background: linear-gradient(transparent, var(--light-surface));
+}
+
+body.dark-theme .movie-overview:not(.expanded)::after {
+    background: linear-gradient(transparent, var(--dark-surface));
+}
+
+.movie-overview.expanded {
+    max-height: 1000px;
+}
+
+.movie-overview.expanded::after {
+    display: none;
+}
+
+.read-more-btn {
+    color: rgba(0, 0, 0, 0.8);
+    background: var(--gradient);
+    border: none;
+    padding: 4px 8px;
+    margin: 4px auto 0;
+    cursor: pointer;
+    font-size: 0.85em;
+    font-weight: 600;
+    display: none;
+    transition: all 0.2s ease;
+    border-radius: 4px;
+}
+
+.read-more-btn:hover {
+    background: var(--button-hover);
+    text-decoration: none;
+}
+
+.needs-read-more .read-more-btn {
+    display: block;
+}
+
+body.dark-theme .read-more-btn {
+    background: var(--gradient-dark);
+    color: var (--dark-text);
+}
+
+body.dark-theme .read-more-btn:hover {
+    background: var(--button-hover-dark);
+}
+
+body.dark-theme .read-more-btn:hover {
+    background: rgba(147,112,219,0.1);
+}
+
+.needs-read-more {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#director, #cast, .movie-overview {
+    margin: 12px 0;
+    line-height: 1.5;
+    text-align: center;
+    color: var(--light-secondary);
+    font-size: 0.9rem;
+}
+
+body.dark-theme #director,
+body.dark-theme #cast,
+body.dark-theme .movie-overview {
+    color: var(--dark-secondary);
+}
+
+body.dark-theme button,
+body.dark-theme #settings-toggle {
+    --button-border: rgba(255,255,255,0.2);
 }
