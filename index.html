@@ -1,37 +1,73 @@
 <!DOCTYPE html>
-<html lang="en">
 <head>
-    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>121.6FLIX</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="icon" href="/media/favicon.png" type="image/png">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 </head>
 <body class="dark-theme">
-    <img src="/media/logo.png" alt="121.6FLIX Logo" id="logo">
+    <img src="/media/logo.png" alt="121.6FLIX" id="logo">
     <!-- <h1>121.6FLIX</h1> -->
     <h3>Watch for free!</h3>
-    <div>
-        <input type="text" id="search-input" placeholder="Enter movie title">
+    <div class="search-container">
+        <input type="text" id="search-input" placeholder="Enter movie title...">
         <button id="search-button">Search!</button>
         <button id="home-button">Home</button>
     </div>
-    <p>Note: If a server doesn't work, try another server.</p>
+    <div id="search-results" class="movie-section" style="display: none;">
+        <div id="search-movies-container" class="movie-scroll-container"></div>
+    </div>
+    <p>Note: If one server doesn't work, try another server in settings.</p>
     <h1>🦋</h1>
-    <h2 id="section-title">POPULAR MOVIES</h2>
-    <div id="movie-container"></div>
+    <div><br><br><br><br></div>
+    <h1 id="section-title">Featured Movies ⬇️</h1>
+    <div id="featured-movies">
+        <section class="movie-section">
+            <div class="section-header">
+                <h2>Trending Movies</h2>
+                <button class="see-more-button" data-section="trending">See More</button>
+            </div>
+            <div id="trending-movies-container" class="movie-scroll-container"></div>
+        </section>
+
+        <section class="movie-section">
+            <div class="section-header">
+                <h2>Popular Movies</h2>
+                <button class="see-more-button" data-section="popular">See More</button>
+            </div>
+            <div id="popular-movies-container" class="movie-scroll-container"></div>
+        </section>
+
+        <section class="movie-section">
+            <div class="section-header">
+                <h2>Top Rated Movies</h2>
+                <button class="see-more-button" data-section="topRated">See More</button>
+            </div>
+            <div id="top-rated-movies-container" class="movie-scroll-container"></div>
+        </section>
+    </div>
+
+    <div class="bottom-controls">
+        <button id="bottom-scroll-button">Back to Top</button>
+    </div>
+
     <button id="see-more-button" style="display: none;">See More</button>
-    <div id="modal" class="modal" style="display: none;">
+    <div id="modal" class="modal">
         <div class="modal-content">
-            <span class="close-button">&times;</span>
-            <iframe id="video-frame" width="640" height="360" frameborder="0" allowfullscreen></iframe>
+            <button class="close-button"><span>&times;</span></button>
+            <div id="video-frame">
+                <iframe frameborder="0" allowfullscreen></iframe>
+            </div>
             <div id="movie-details">
                 <p id="director"></p>
                 <p id="cast"></p>
             </div>
         </div>
     </div>
+    <button id="settings-toggle">⚙️</button>
     <div id="server-container">
+        <h4 style="margin: 0 0 8px 0;">Settings</h4>
         <p>Server:
         <select id="server-select">
             <option value="vidsrc1">VidSrc 1</option>
@@ -46,9 +82,9 @@
         <button id="scroll-to-top-button" style="display: none;">Back to Top</button>
     </div>
     <footer>
-        <p>Made with ❤️ by A</p>
+        <p>Made with ❤️!<br><i>© 2025, 121.6FLIX.</i></p>
     </footer>
     <script src="script.js"></script>
-    <!-- <script src="omdb.js"></script> -->
+    <!-- <script src="script_omdb.js"></script> -->
 </body>
 </html>

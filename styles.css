@@ -1,194 +1,642 @@
+/* colours */
+:root {
+    /* dark mode */
+    --dark-bg: #141414;
+    --dark-surface: #1e1e1e;
+    --dark-text: #ffffff;
+    --dark-secondary: #b3b3b3;
+    --dark-hover: #2a2a2a;
+    --dark-border: #333333;
+
+    /* light mode */
+    --light-bg: #f5f5f5;
+    --light-surface: #ffffff;
+    --light-text: #000000;
+    --light-secondary: #666666;
+    --light-hover: #eeeeee;
+    --light-border: #dddddd;
+
+    --gradient: linear-gradient(135deg,rgba(255,255,255,0.15),rgba(219,112,147,0.15),rgba(147,112,219,0.2));
+    --button-border: rgba(255,255,255,0.2);
+}
+
+
+
+
+
+
 body {
-    font-family: Arial, sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     margin: 0;
     padding: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    background-color: #f0f0f0;
-    color: #000;
+    min-height: 100vh;
+    background-color: var(--light-bg);
+    color: var(--light-text);
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 body.dark-theme {
-    background-color: #121212;
-    color: #ffffff;
+    background-color: var(--dark-bg);
+    color: var(--dark-text);
 }
 
 #logo {
-    margin-top: 20px;
-    margin-left: 40px;
-    width: 240px;
+    margin: 20px auto;
+    width: 180px;
     height: auto;
+    display: block;
 }
 
-h1 {
-    margin-top: 20px;
-}
-
-div {
-    margin-top: 20px;
-}
-
-#movie-container {
-    background-color: #fff;
-    padding: 20px;
-    margin-top: 20px;
-    margin-bottom: 60px;
-    border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    width: 80%;
-    max-width: 600px;
-    text-align: center;
-}
-
-body.dark-theme #movie-container {
-    background-color: #1e1e1e;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-}
-
-#movie-container img {
-    max-width: 75%;
-    height: auto;
-    border-radius: 8px;
-    cursor: pointer;
+.search-container {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    padding: 15px;
     margin-bottom: 20px;
-}
-
-.movie {
-    margin-bottom: 20px;
-    padding: 10px;
-    border: 2px solid #ddd;
-    border-radius: 8px;
-    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
-    background-color: #f9f9f9;
-}
-
-body.dark-theme .movie {
-    border: 2px solid #444;
-    background-color: #2c2c2c;
-    box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
 }
 
 input[type="text"] {
-    padding: 10px;
-    border-radius: 4px;
-    border: 1px solid #444;
-    background-color: #fff;
-    color: #000;
+    width: 300px;
+    padding: 8px 16px;
+    border-radius: 6px;
+    border: 1px solid var(--light-border);
+    background-color: var(--light-surface);
+    color: var(--light-text);
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
 }
 
 body.dark-theme input[type="text"] {
-    background-color: #333;
-    color: #fff;
+    background-color: var(--dark-surface);
+    border-color: var(--dark-border);
+    color: var(--dark-text);
+}
+
+input[type="text"]:focus {
+    outline: none;
+    border-color: rgba(147,112,219,0.5);
+    box-shadow: 0 0 0 2px rgba(147,112,219,0.1);
 }
 
 button {
-    padding: 10px 20px;
-    border-radius: 4px;
-    border: none;
-    background-color: #444;
-    color: #fff;
+    padding: 8px 16px;
+    border-radius: 6px;
+    background: var(--gradient);
+    border: 1px solid var(--button-border);
+    color: var(--light-text);
+    font-size: 0.9rem;
+    font-weight: 500;
     cursor: pointer;
-    margin-left: 10px;
+    transition: all 0.3s ease;
+}
+
+body.dark-theme button {
+    color: var(--dark-text);
+    border-color: var(--dark-border);
 }
 
 button:hover {
-    background-color: #555;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(147,112,219,0.15);
+    background: linear-gradient(135deg, 
+        rgba(255,255,255,0.2),
+        rgba(219,112,147,0.2),
+        rgba(147,112,219,0.25)
+    );
 }
 
-#see-more-button {
-    margin-bottom: 120px; /* prevent overlap w footer */
+.see-more-button {
+    font-size: 0.9rem;
+    padding: 8px 16px;
 }
 
-#server-container {
-    position: fixed;
-    bottom: 120px;
-    right: 32px;
-    background-color: #fff;
-    padding: 10px;
-    border-radius: 4px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    z-index: 1000;
+#search-button,
+#home-button {
+    margin: 0 8px;
 }
 
 #scroll-to-top-button {
-    
-    margin-top: 10px;
-    padding: 10px 20px;
-    border-radius: 4px;
-    border: none;
-    background-color: #444;
-    color: #fff;
-    cursor: pointer;
-    z-index: 1001; /* appear above modal */
-}
-
-#scroll-to-top-button:hover {
-    background-color: #555;
-}
-
-body.dark-theme #server-container {
-    background-color: #333;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-}
-
-footer {
-    margin-top: 20px;
-    padding: 10px;
-    text-align: center;
-    background-color: #1e1e1e;
-    color: #ffffff;
-    width: 100%;
-    position: fixed;
-    bottom: 0;
-}
-
-.modal {
-    display: none;
-    position: fixed;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    overflow: hidden; /* prevent scrolling */
-    background-color: rgba(0, 0, 0, 0.5); 
-}
-
-.modal-content {
-    background-color: #1e1e1e;
-    margin: auto;
-    padding: 20px;
-    border: 1px solid #888;
-    width: 90%;
-    max-width: 640px;
-    max-height: 90%;
-    border-radius: 8px;
-    text-align: center;
-    overflow: auto; /* scrolling within content IF necessary */
+    display: none; /* ONLY keep display none */
 }
 
 .close-button {
-    color: #aaa;
-    float: right;
+    position: absolute;
+    right: 16px;
+    top: 16px;
+    width: 32px;
+    height: 32px;
     font-size: 28px;
-    font-weight: bold;
-}
-
-.close-button:hover,
-.close-button:focus {
-    color: #000;
-    text-decoration: none;
+    line-height: 1;
+    color: var(--dark-secondary);
     cursor: pointer;
+    background: none;
+    border: none;
+    padding: 0;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
+.close-button span {
+    margin-top: -2px;
+}
+
+close-button:hover {
+    color: var(--dark-text);
+    background: rgba(255, 255, 255, 0.1);
+    transform: none;
+    box-shadow: none;
+}
+
+
+
+
+
+
+
+
+
+/* MOVIE GRID */
+.movie-scroll-container {
+    display: flex;
+    overflow-x: auto;
+    gap: 20px;
+    padding: 20px;
+    scroll-behavior: smooth;
+    scroll-snap-type: x mandatory;
+    
+    /* mobile stuff handled by AI */
+    -webkit-overflow-scrolling: touch; /* Add smooth scrolling on iOS */
+    overscroll-behavior-x: contain; /* Prevent page swipe on some browsers */
+}
+
+.movie-scroll-container::-webkit-scrollbar {
+    height: 8px;
+}
+
+.movie-scroll-container::-webkit-scrollbar-track {
+    background: var(--dark-surface);
+    border-radius: 4px;
+}
+
+.movie-scroll-container::-webkit-scrollbar-thumb {
+    background: var(--dark-secondary);
+    border-radius: 4px;
+}
+
+.movie-scroll-container::-webkit-scrollbar-thumb:hover {
+    background: var(--dark-text);
+}
+
+/* light mode */
+body:not(.dark-theme) .movie-scroll-container {
+    scrollbar-color: var(--light-secondary) var(--light-surface); /* Firefox */
+}
+
+body:not(.dark-theme) .movie-scroll-container::-webkit-scrollbar-track {
+    background: var(--light-surface);
+}
+
+body:not(.dark-theme) .movie-scroll-container::-webkit-scrollbar-thumb {
+    background: var(--light-secondary);
+}
+
+body:not(.dark-theme) .movie-scroll-container::-webkit-scrollbar-thumb:hover {
+    background: var(--light-text);
+}
+
+.movie {
+    flex: 0 0 auto;
+    width: 200px;
+    border-radius: 12px;
+    overflow: hidden;
+    background-color: var(--light-surface);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    scroll-snap-align: start;
+    position: relative;
+    padding-bottom: 8px;
+    /* margin-right: 4px; */
+}
+
+body.dark-theme .movie {
+    background-color: var(--dark-surface);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+.movie:hover {
+    transform: scale(1.05);
+    box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
+    cursor: pointer; 
+}
+
+.movie img {
+    width: 100%;
+    height: 300px;
+    object-fit: cover;
+    border-radius: 12px 12px 0 0;
+    cursor: pointer; 
+    position: relative;
+}
+
+.movie h2 {
+    font-size: 1rem;
+    margin: 12px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* TITLE TOOLTIP ON HOVER */
+.movie img:hover::after, .movie h2:hover::after {
+    content: attr(title);
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 100%;
+    background: var(--dark-surface);
+    color: var(--dark-text);
+    padding: 8px;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    white-space: normal;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    z-index: 100;
+    margin: 0 8px 8px 8px;
+}
+
+body:not(.dark-theme) .movie img:hover::after,
+body:not(.dark-theme) .movie h2:hover::after {
+    background: var(--light-surface);
+    color: var(--light-text);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.movie p {
+    margin: 8px 12px;
+    color: var(--light-secondary);
+    font-size: 0.9rem;
+}
+
+body.dark-theme .movie p {
+    color: var(--dark-secondary);
+}
+
+#search-movies-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 24px;
+    padding: 20px;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.movie-context-menu {
+    display: none;
+    position: absolute;
+    background: var(--dark-surface);
+    border: 1px solid var(--dark-border);
+    border-radius: 4px;
+    padding: 4px;
+    z-index: 1000;
+}
+
+.context-menu-item {
+    display: block;
+    width: 100%;
+    padding: 8px 12px;
+    border: none;
+    background: none;
+    color: var(--dark-text);
+    cursor: pointer;
+    white-space: nowrap;
+    text-align: left;
+}
+
+.context-menu-item:hover {
+    background: var(--dark-hover);
+}
+
+
+
+
+
+
+
+
+.modal {
+    display: none;  
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.8);
+    z-index: 999;
+    backdrop-filter: blur(8px);
+}
+
+.modal.open {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-content {
+    background-color: var(--dark-surface);
+    margin: 30px;
+    padding: 40px 24px 24px; 
+    width: 95%;
+    max-width: 900px;
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    position: relative;
+    display: flex;           
+    flex-direction: column;  
+}
+
+/* video player */
 #video-frame {
     width: 100%;
-    height: auto;
-    aspect-ratio: 16 / 9;
+    height: 0;
+    padding-bottom: 56.25%; 
+    position: relative;
+    margin-top: 16px; 
+    margin-bottom: 20px;
+    background: var(--dark-bg); /
+}
+
+#video-frame iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+    border-radius: 8px;
+    background: var(--dark-bg);
 }
 
 #movie-details {
-    margin-top: 10px;
-    text-align: left;
-    color: #fff;
+    text-align: center;
+    color: var(--dark-text);
+    padding: 16px 0;
+}
+
+#director, #cast {
+    margin: 12px 0;
+    line-height: 1.5;
+}
+
+
+
+
+
+
+
+
+
+
+#server-container {
+    position: fixed;
+    top: 24px;           
+    right: -250px; /* slightly wider to avoid text wrapping */
+    width: 220px;
+    background-color: var(--light-surface);
+    padding: 16px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    z-index: 1001;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    transition: transform 0.3s ease;
+    max-width: 90vw; /* small screens */
+    transform: translateX(0);
+}
+
+#server-container.open {
+    transform: translateX(-270px);
+}
+
+#settings-toggle {
+    position: fixed;
+    top: 30px;           
+    right: 30px;
+    width: 52px;            
+    height: 52px;
+    border-radius: 50%;
+    background: var(--gradient);
+    border: 1px solid var(--button-border);
+    color: var(--light-text);
+    font-size: 1.5rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1002;
+    transition: all 0.3s ease;
+}
+
+
+
+
+
+
+
+
+/* mobile stuff (AI GENERATED LOL)*/
+@media (max-width: 768px) {
+    #server-container {
+        top: 80px; /* Move up to avoid mobile navigation bars */
+    }
+    
+    #settings-toggle {
+        top: 16px; /* Changed from bottom to top */
+        right: 16px;
+        width: 46px;        /* Increased from 40px */
+        height: 46px;       /* Increased from 40px */
+        font-size: 1.2rem;  /* Increased from 1rem */
+    }
+
+    .movie-scroll-container {
+        gap: 16px;
+        padding: 16px;
+    }
+
+    .movie {
+        width: 160px; /* Slightly smaller cards on mobile */
+    }
+
+    .movie img {
+        height: 240px; /* Adjust image height for mobile */
+    }
+}
+
+body.dark-theme #server-container {
+    background-color: var(--dark-surface);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+body.dark-theme #settings-toggle {
+    color: var(--dark-text);
+}
+
+footer {
+    margin-top: auto;
+    padding: 20px;
+    background-color: var(--light-surface);
+    color: var(--light-text);
+    text-align: center;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.1);
+    z-index: 900; 
+}
+
+body.dark-theme footer {
+    background-color: var(--dark-surface);
+    color: var(--dark-text);
+    box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* center extra text */
+h2#section-title, 
+h3:not(.section-header h3), 
+p:not(.movie p):not(#director):not(#cast) {
+    text-align: center;
+    margin: 20px auto;
+}
+
+h1 {
+    text-align: center;
+    font-size: 2rem;
+    margin: 20px 0;
+}
+
+/* movie section header */
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px;
+    margin-bottom: 20px;
+}
+
+#featured-movies {
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 20px;
+    margin-bottom: 40px; /* BOTTONM PADDING SO THAT SCROLLBAR ISNT COVERED BY FOOTER (changed because i added a bottom button) */
+}
+
+.movie-section {
+    margin-bottom: 40px;
+}
+
+.bottom-controls {
+    display: flex;
+    justify-content: center;
+    margin: 40px 0 240px 0;
+}
+
+#bottom-scroll-button {
+    padding: 10px 20px;
+    font-size: 1rem;
+}
+
+
+
+
+
+
+
+
+
+/* Player page specific */
+body.player-page {
+    background: var(--dark-bg);
+    margin: 0;
+    padding: 20px;
+    min-height: 100vh;
+}
+
+.player-page .modal {
+    position: static;
+    display: block;
+    background: none;
+    margin-bottom: 20px; 
+}
+
+.player-page .modal-content {
+    width: 100%;
+    max-width: 650px; 
+    margin: 0 auto;
+    padding: 0;
+    background: none;
+    box-shadow: none;
+}
+
+
+.player-page #video-frame {
+    width: 100%;
+    height: 0;
+    aspect-ratio: 16/9;
+    padding-bottom: 56.25%;
+    position: relative;
+    background: var(--dark-surface);
+    border-radius: 12px;
+    margin: 0;
+}
+
+.player-page #server-container {
+    position: static;
+    width: 100%;
+    max-width: 200px;
+    margin: 20px auto 20px;
+    background: var(--dark-surface);
+    padding: 1px;
+    border-radius: 8px;
+}
+
+.player-page #back-home {
+    position: static; 
+    padding: 8px 16px;
+    font-size: 0.9rem;
+    background: var(--gradient);
+    border: 1px solid var(--button-border);
+    color: var(--dark-text);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin: 0 auto 0;
+    display: block; 
+}
+
+.player-page #back-home:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(147,112,219,0.15);
+    background: linear-gradient(135deg,rgba(255,255,255,0.15),rgba(219,112,147,0.15),rgba(147,112,219,0.2));
+    border: rgba(255,255,255,0.2);
+}
+
+.player-page #movie-info {
+    margin: 20px auto 0;
+    padding: 20px 20px 0 20px;
+    background: var(--dark-surface);
+    border-radius: 12px;
+    color: var(--dark-text); 
+}
+
+.player-page #movie-info h1 {
+    margin: 0;
+    font-size: 1.5rem;
+    color: var(--dark-text);
+}
+
+.player-page #movie-info p {
+    margin: 0;
+    color: var(--dark-secondary);
+    font-size: 0.9rem;
 }

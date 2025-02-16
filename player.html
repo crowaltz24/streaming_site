@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>121.6FLIX Player</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="icon" href="/media/favicon.png" type="image/png">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body class="dark-theme player-page">
+    <button id="back-home" onclick="window.location.href='index.html'">← Back to Home</button>
+    
+    <div id="server-container">
+        <p>Server:
+        <select id="server-select">
+            <option value="vidsrc1">VidSrc 1</option>
+            <option value="vidsrc2">VidSrc 2</option>
+            <option value="vidlink">VidLink</option>
+            <option value="embed">&ltEmbed&gt</option>
+            <option value="autoembed">AutoEmbed</option>
+            <option value="multiembed">MultiEmbed</option>
+        </select>
+        </p>
+    </div>
+
+    <div id="modal">
+        <div class="modal-content">
+            <div id="video-frame">
+                <iframe frameborder="0" allowfullscreen allow="autoplay; fullscreen"></iframe>
+            </div>
+            <div id="movie-info">
+                <h1 id="movie-title"></h1>
+                <p id="movie-meta"></p>
+            </div>
+            <div id="movie-details">
+                <p id="director"></p>
+                <p id="cast"></p>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const movieId = new URLSearchParams(window.location.search).get('id');
+            if (movieId) {
+                state.currentTmdbID = movieId;
+                ui.updateVideoFrame(movieId);
+                await ui.updateMovieInfo(movieId);
+                await ui.updateMovieCredits(movieId);
+            }
+            document.getElementById('server-select').addEventListener('change', () => {
+                if (state.currentTmdbID) {
+                    ui.updateVideoFrame(state.currentTmdbID);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
