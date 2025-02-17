@@ -1,3 +1,9 @@
+/* some mobile related stuff */
+* {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+}
+
 /* colours */
 :root {
     /* dark mode */
@@ -52,10 +58,6 @@
         rgba(147,112,219,0.35)
     );
 }
-
-
-
-
 
 body {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -190,14 +192,6 @@ body.dark-theme .close-button:hover {
     color: var(--dark-text);
     background: var(--gradient-dark);
 }
-
-
-
-
-
-
-
-
 
 /* MOVIE GRID */
 .movie-scroll-container {
@@ -345,7 +339,6 @@ body.dark-theme .movie p {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-
 body.dark-theme .movie-context-menu {
     background: var(--dark-surface);
     border: 1px solid var(--dark-border);
@@ -378,13 +371,6 @@ body.dark-theme .context-menu-item {
 body.dark-theme .context-menu-item:hover {
     background: var(--dark-hover) !important;
 }
-
-
-
-
-
-
-
 
 .modal {
     display: none;  
@@ -493,13 +479,6 @@ body.dark-theme .modal-movie-title {
     color: var(--dark-text);
 }
 
-
-
-
-
-
-
-
 #server-container {
     position: fixed;
     top: 24px;           
@@ -559,13 +538,6 @@ body.dark-theme #settings-toggle:hover {
     background: var(--button-hover-dark);
 }
 
-
-
-
-
-
-
-
 /* mobile stuff (AI GENERATED LOL)*/
 @media (max-width: 768px) {
     #server-container {
@@ -573,10 +545,25 @@ body.dark-theme #settings-toggle:hover {
         bottom: 80px; /* Position from bottom instead */
         right: -250px;
         transform: translateX(0);
+        max-height: 60vh; /* Limit height to 60% of viewport */
+        overflow-y: auto; /* Make it scrollable */
     }
     
-    #server-container.open {
-        transform: translateX(-270px);
+    #server-container::-webkit-scrollbar {
+        width: 6px;
+    }
+    
+    #server-container::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    
+    #server-container::-webkit-scrollbar-thumb {
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 3px;
+    }
+
+    body.dark-theme #server-container::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.2);
     }
     
     #settings-toggle {
@@ -620,6 +607,20 @@ body.dark-theme #settings-toggle:hover {
     .movie img {
         height: 240px; /* Adjust image height for mobile */
     }
+
+    input[type="text"],
+    button,
+    select {
+        font-size: 16px !important; /* Prevent iOS zoom on focus */
+    }
+
+    .movie h2 {
+        font-size: 0.95rem;
+    }
+
+    .movie p {
+        font-size: 0.85rem;
+    }
 }
 
 @media (max-width: 480px) {
@@ -629,6 +630,10 @@ body.dark-theme #settings-toggle:hover {
         width: 44px;
         height: 44px;
         font-size: 1.2rem;
+    }
+
+    #server-container {
+        max-height: 50vh; /* Even smaller on very small screens */
     }
 }
 
@@ -706,14 +711,6 @@ h1 {
     font-size: 1rem;
 }
 
-
-
-
-
-
-
-
-
 /* Player page specific */
 body.player-page {
     background: var(--dark-bg);
@@ -737,7 +734,6 @@ body.player-page {
     background: none;
     box-shadow: none;
 }
-
 
 .player-page #video-frame {
     width: 100%;
@@ -820,14 +816,6 @@ body.dark-theme .player-page #back-home:hover {
     color: var(--dark-secondary);
     font-size: 0.9rem;
 }
-
-
-
-
-
-
-
-
 
 .movie-overview {
     max-height: 60px;
