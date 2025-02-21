@@ -98,7 +98,7 @@ const ui = {
             <p>${movie.release_date ? movie.release_date.split('-')[0] : 'N/A'}</p>
             <p>${movie.vote_average ? movie.vote_average.toFixed(1) : 'N/A'} ⭐</p>
             <div class="movie-context-menu">
-                <button class="context-menu-item">Open in new tab</button>
+                <button class="context-menu-item">Open in Immersive Mode</button>
             </div>
         `;
 
