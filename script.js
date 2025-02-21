@@ -30,12 +30,29 @@ const videoServers = {
 
 // api calls
 const api = {
+    async fetchWithRetry(url, options, retries = 3, delay = 1000) {
+        for (let i = 0; i < retries; i++) {
+            try {
+                const response = await fetch(url, options);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            } catch (error) {
+                if (i === retries - 1) throw error;
+                await new Promise(resolve => setTimeout(resolve, delay));
+            }
+        }
+    },
+
     async fetchData(endpoint, page = 1) {
         const url = `${config.tmdbBaseUrl}${endpoint}?page=${page}&api_key=${config.apiKey}`;
-        const response = await fetch(url, {
-            headers: { 'Authorization': `Bearer ${config.accessToken}` }
+        return this.fetchWithRetry(url, {
+            headers: { 
+                'Authorization': `Bearer ${config.accessToken}`,
+                'Accept': 'application/json'
+            }
         });
-        return response.json();
     },
 
     async searchMovies(query, page = 1) {
@@ -408,7 +425,6 @@ const ui = {
 
 // click handlers and stuff
 function setupEventListeners() {
-    // SEE MORE button control
     document.querySelectorAll('.see-more-button').forEach(button => {
         button.addEventListener('click', async () => {
             const section = button.getAttribute('data-section');
@@ -419,12 +435,24 @@ function setupEventListeners() {
                 state.pages[section] = 1;
             }
             
-            state.pages[section]++;
+            button.disabled = true;
             try {
+                state.pages[section]++;
                 const data = await api.getMoviesByType[section](state.pages[section]);
                 ui.updateMovieContainer(data, containerId, state.pages[section]);
             } catch (error) {
                 console.error(`Error loading more ${section} movies:`, error);
+                // Revert the page count since the request failed
+                state.pages[section]--;
+                // Show error to user
+                const container = document.getElementById(containerId);
+                const errorMsg = document.createElement('div');
+                errorMsg.className = 'error-message';
+                errorMsg.textContent = 'Failed to load more movies. Please try again later.';
+                container.appendChild(errorMsg);
+                setTimeout(() => errorMsg.remove(), 3000);
+            } finally {
+                button.disabled = false;
             }
         });
     });

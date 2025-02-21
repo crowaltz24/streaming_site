@@ -7,11 +7,10 @@
 ## Features
 
 - **Movie Search**: Quickly search for movies using the search bar.
-- **Trending, Popular & Top Rated Movies**: Browse categorized sections for easy discovery.
+- **Trending, Popular & Top Rated Movies**: Browse categorized sections, curated on the home page for easy discovery.
 - **Multiple Streaming Servers**: Choose from different server options in the settings.
 - **Dark Theme Support**: Toggle themes for a customized viewing experience.
-- **Back to Top Button**: Easily navigate to the top of the page.
-- **Responsive Design**: Works smoothly on both mobile and desktop devices.
+- **Responsive Design**: Works on both mobile and desktop devices.
 
 ## Installation
 
@@ -21,7 +20,7 @@
 
 ## Usage
 
-- Enter a movie title in the search bar and click "Search!" to find movies.
+- Explore the home page, or enter a movie title in the search bar and click "Search!" to find movies.
 - Click on a movie to watch it.
 - If a server does not work, change it from the "Settings" menu.
 - Use the "See More" buttons to explore more movies in each category.
@@ -30,6 +29,7 @@
 ## File Structure
 
 - `index.html` - The main webpage structure.
+- `player.html` - Handles immersive mode.
 - `styles.css` - Stylesheet for UI design.
 - `script.js` - Handles search functionality and UI interactions.
 - `/media/` - Contains assets like the logo and favicon.
