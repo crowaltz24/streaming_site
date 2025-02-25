@@ -12,11 +12,11 @@
     <div id="server-container">
         <p>Server:
         <select id="server-select">
+            <option value="autoembed" selected>AutoEmbed</option>
             <option value="vidsrc1">VidSrc 1</option>
             <option value="vidsrc2">VidSrc 2</option>
             <option value="vidlink">VidLink</option>
             <option value="embed">&ltEmbed&gt</option>
-            <option value="autoembed">AutoEmbed</option>
             <option value="multiembed">MultiEmbed</option>
         </select>
         </p>
@@ -42,16 +42,113 @@
     <script src="script.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', async () => {
-            const movieId = new URLSearchParams(window.location.search).get('id');
-            if (movieId) {
-                state.currentTmdbID = movieId;
-                ui.updateVideoFrame(movieId);
-                await ui.updateMovieInfo(movieId);
-                await ui.updateMovieCredits(movieId);
+            const params = new URLSearchParams(window.location.search);
+            const id = params.get('id');
+            const type = params.get('type');
+            
+            if (id) {
+                state.currentTmdbID = id;
+                if (type === 'tv') {
+                    const details = await api.getTVDetails(id);
+                    document.getElementById('movie-title').textContent = details.name;
+                    document.getElementById('movie-meta').textContent = 
+                        `${details.first_air_date.split('-')[0]} • ${details.vote_average.toFixed(1)}⭐`;
+                    
+                    // load saved progress
+                    const progress = JSON.parse(localStorage.getItem('showProgress') || '{}')[id] || { season: 1, episode: 1 };
+                    
+                    // setup season/episode controls
+                    const mainContainer = document.querySelector('.modal-content');
+                    const seasons = details.seasons.filter(s => s.season_number > 0);
+                    
+                    const controls = document.createElement('div');
+                    controls.className = 'season-select';
+                    controls.innerHTML = `
+                        <select id="season-select">
+                            ${seasons.map(s => `
+                                <option value="${s.season_number}" ${s.season_number === progress.season ? 'selected' : ''}>
+                                    Season ${s.season_number}
+                                </option>
+                            `).join('')}
+                        </select>
+                        <select id="episode-select"></select>
+                    `;
+                    
+                    mainContainer.insertBefore(controls, document.getElementById('video-frame'));
+
+                    // season/episode handlers
+                    document.getElementById('season-select').addEventListener('change', (e) => {
+                        ui.updateEpisodeSelect(id, e.target.value);
+                    });
+
+                    document.getElementById('episode-select').addEventListener('change', (e) => {
+                        const season = document.getElementById('season-select').value;
+                        const episode = e.target.value;
+                        ui.updateTVFrame(id, season, episode);
+                    });
+
+                    // load episodes and start playback from last position
+                    await ui.updateEpisodeSelect(id, progress.season);
+                    const episodeSelect = document.getElementById('episode-select');
+                    if (episodeSelect) {
+                        episodeSelect.value = progress.episode;
+                        ui.updateTVFrame(id, progress.season, progress.episode);
+                    }
+
+                    // description
+                    const overview = details.overview || 'No description available.';
+                    document.getElementById('movie-description').innerHTML = `
+                        <div class="movie-overview">
+                            <p>${overview}</p>
+                        </div>
+                        <button class="read-more-btn">Read More</button>
+                    `;
+
+                    // read more
+                    const overviewDiv = document.querySelector('.movie-overview');
+                    const needsReadMore = overviewDiv.scrollHeight > overviewDiv.clientHeight;
+                    if (needsReadMore) {
+                        overviewDiv.parentElement.classList.add('needs-read-more');
+                        const readMoreBtn = document.querySelector('.read-more-btn');
+                        readMoreBtn.addEventListener('click', () => {
+                            overviewDiv.classList.toggle('expanded');
+                            readMoreBtn.textContent = overviewDiv.classList.contains('expanded') ? 
+                                'Read Less' : 'Read More';
+                        });
+                    }
+
+                    // creator and cast info
+                    const creators = details.created_by || [];
+                    document.getElementById('director').innerHTML = 
+                        `Created by: <b>${creators.map(c => c.name).join(', ') || 'N/A'}</b>`;
+
+                    const cast = details.credits?.cast?.slice(0, 5) || [];
+                    if (cast.length > 0) {
+                        let castHTML = `Cast:<br>${cast.map(actor => 
+                            `<b>${actor.name}</b> as ${actor.character}`).join(', ')}`;
+                        if (details.credits?.cast?.length > 5) castHTML += ', and more.';
+                        document.getElementById('cast').innerHTML = castHTML;
+                    } else {
+                        document.getElementById('cast').textContent = 'Cast: N/A';
+                    }
+                } else {
+                    // regular movie handling
+                    ui.updateVideoFrame(id);
+                    await ui.updateMovieInfo(id);
+                    await ui.updateMovieCredits(id);
+                }
             }
+
+            // Update server change handler to handle both movies and TV
             document.getElementById('server-select').addEventListener('change', () => {
-                if (state.currentTmdbID) {
-                    ui.updateVideoFrame(state.currentTmdbID);
+                const type = new URLSearchParams(window.location.search).get('type');
+                const id = state.currentTmdbID;
+                if (type === 'tv') {
+                    const season = document.getElementById('season-select').value;
+                    const episode = document.getElementById('episode-select').value;
+                    ui.updateTVFrame(id, season, episode);
+                } else {
+                    ui.updateVideoFrame(id);
                 }
             });
         });

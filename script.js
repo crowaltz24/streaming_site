@@ -12,20 +12,33 @@ const state = {
     pages: {
         popular: 1,
         trending: 1,
-        topRated: 1
+        topRated: 1,
+        popularTV: 1,
+        trendingTV: 1,
+        topRatedTV: 1  // add tv pages
     },
+    showProgress: {}, // remember episodes n stuff
     isSearching: false,
     currentSearch: ''
 };
 
 // video player endpoints
 const videoServers = {
-    vidsrc1: (id) => `https://vidsrc.cc/v2/embed/movie/${id}?autoPlay=false`,
-    vidsrc2: (id) => `https://vidsrc.cc/v3/embed/movie/${id}?autoPlay=false`,
+    // Movie endpoints
+    vidsrc1: (id) => `https://vidsrc.cc/v3/embed/movie/${id}?autoPlay=false`,
+    vidsrc2: (id) => `https://vidsrc.cc/v2/embed/movie/${id}?autoPlay=false`,
     vidlink: (id) => `https://vidlink.pro/movie/${id}`,
     autoembed: (id) => `https://player.autoembed.cc/embed/movie/${id}`,
     multiembed: (id) => `https://multiembed.mov/?video_id=${id}&tmdb=1&autoplay=false`,
-    embed: (id) => `https://embed.su/embed/movie/${id}?autoplay=false`
+    embed: (id) => `https://embed.su/embed/movie/${id}?autoplay=false`,
+ 
+    // tv show links
+    vidsrc1TV: (id, season = 1, episode = 1) => `https://vidsrc.cc/v3/embed/tv/${id}/${season}/${episode}?autoPlay=false`,
+    vidsrc2TV: (id, season = 1, episode = 1) => `https://vidsrc.cc/v2/embed/tv/${id}/${season}/${episode}?autoPlay=false`,
+    vidlinkTV: (id, season = 1, episode = 1) => `https://vidlink.pro/tv/${id}/${season}/${episode}`,
+    autoembedTV: (id, season = 1, episode = 1) => `https://player.autoembed.cc/embed/tv/${id}/${season}/${episode}`,
+    multiembedTV: (id, season = 1, episode = 1) => `https://multiembed.mov/?video_id=${id}&tmdb=1&s=${season}&e=${episode}&autoplay=false`,
+    embedTV: (id, season = 1, episode = 1) => `https://embed.su/embed/tv/${id}/${season}/${episode}?autoplay=false`
 };
 
 // api calls
@@ -71,6 +84,16 @@ const api = {
         return response.json();
     },
 
+    async searchTV(query, page = 1) {
+        const url = `${config.tmdbBaseUrl}/search/tv?api_key=${config.apiKey}&query=${encodeURIComponent(query)}&page=${page}&include_adult=false&language=en-US`;
+        return this.fetchWithRetry(url, {
+            headers: {
+                'Authorization': `Bearer ${config.accessToken}`,
+                'Accept': 'application/json'
+            }
+        });
+    },
+
     async getMovieCredits(movieId) {
         return this.fetchData(`/movie/${movieId}/credits`);
     },
@@ -91,10 +114,30 @@ const api = {
         return response.json();
     },
 
+    async getTVDetails(tvId) {
+        const url = `${config.tmdbBaseUrl}/tv/${tvId}?api_key=${config.apiKey}&append_to_response=credits`;
+        return this.fetchWithRetry(url, {
+            headers: {
+                'Authorization': `Bearer ${config.accessToken}`,
+                'Accept': 'application/json'
+            }
+        });
+    },
+
+    async getTVSeasonDetails(tvId, season) {
+        return this.fetchData(`/tv/${tvId}/season/${season}`);
+    },
+
     getMoviesByType: {
         popular: (page) => api.fetchData('/movie/popular', page),
         trending: (page) => api.fetchData('/trending/movie/week', page),
         topRated: (page) => api.fetchData('/movie/top_rated', page)
+    },
+
+    getShowsByType: {
+        popularTV: (page) => api.fetchData('/tv/popular', page),
+        trendingTV: (page) => api.fetchData('/trending/tv/week', page),
+        topRatedTV: (page) => api.fetchData('/tv/top_rated', page)
     }
 };
 
@@ -115,7 +158,7 @@ const ui = {
             <p>${movie.release_date ? movie.release_date.split('-')[0] : 'N/A'}</p>
             <p>${movie.vote_average ? movie.vote_average.toFixed(1) : 'N/A'} ⭐</p>
             <div class="movie-context-menu">
-                <button class="context-menu-item">Open in Immersive Mode</button>
+                <button class="context-menu-item">Open in New Tab</button>
             </div>
         `;
 
@@ -174,16 +217,85 @@ const ui = {
         return movieElement;
     },
 
+    createTVCard(show) {
+        if (!show.poster_path) return null;
+        const showElement = document.createElement('div');
+        showElement.classList.add('movie'); // reuse the movie styles
+        showElement.innerHTML = `
+            <img src="${config.imageBaseUrl}${show.poster_path}" 
+                 alt="${show.name}" 
+                 title="${show.name}"
+                 class="tv-poster" 
+                 data-tmdbid="${show.id}"
+                 data-type="tv">
+            <h2 title="${show.name}">${show.name}</h2>
+            <p>${show.first_air_date ? show.first_air_date.split('-')[0] : 'N/A'}</p>
+            <p>${show.vote_average ? show.vote_average.toFixed(1) : 'N/A'} ⭐</p>
+            <div class="movie-context-menu">
+                <button class="context-menu-item">Open in Immersive Mode</button>
+            </div>
+        `;
+
+        const poster = showElement.querySelector('.tv-poster');
+        
+        // Normal click opens in modal
+        poster.addEventListener('click', () => {
+            this.showTVModal(show.id);
+        });
+
+        // Middle click for new tab
+        poster.addEventListener('mousedown', (e) => {
+            if (e.button === 1) {
+                e.preventDefault();
+                window.open(`player.html?id=${show.id}&type=tv`, '_blank');
+            }
+        });
+
+        // Context menu
+        poster.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+            document.querySelectorAll('.movie-context-menu').forEach(menu => {
+                menu.style.display = 'none';
+            });
+            
+            const contextMenu = showElement.querySelector('.movie-context-menu');
+            contextMenu.style.display = 'block';
+            
+            const posterRect = poster.getBoundingClientRect();
+            const menuRect = contextMenu.getBoundingClientRect();
+            let x = e.clientX - posterRect.left;
+            let y = e.clientY - posterRect.top;
+            
+            if (x + menuRect.width > posterRect.width) {
+                x = posterRect.width - menuRect.width;
+            }
+            if (y + menuRect.height > posterRect.height) {
+                y = posterRect.height - menuRect.height;
+            }
+            contextMenu.style.left = `${x}px`;
+            contextMenu.style.top = `${y}px`;
+        });
+
+        // New tab handler
+        showElement.querySelector('.context-menu-item').addEventListener('click', () => {
+            window.open(`player.html?id=${show.id}&type=tv`, '_blank');
+        });
+
+        return showElement;
+    },
+
     // add movies to container
     async updateMovieContainer(data, containerId, page = 1) {
         const container = document.getElementById(containerId);
         if (page === 1) container.innerHTML = '';
 
         data.results
-            .filter(movie => movie.poster_path)
-            .forEach(movie => {
-                const movieCard = this.createMovieCard(movie);
-                if (movieCard) container.appendChild(movieCard);
+            .filter(item => item.poster_path)
+            .forEach(item => {
+                // Check if it's a TV show (has name instead of title)
+                const isTV = 'name' in item;
+                const card = isTV ? this.createTVCard(item) : this.createMovieCard(item);
+                if (card) container.appendChild(card);
             });
 
         const seeMoreButton = container.parentElement.querySelector('.see-more-button');
@@ -281,6 +393,151 @@ const ui = {
         }
     },
 
+    async showTVModal(tvId) {
+        try {
+            const details = await api.getTVDetails(tvId);
+            const seasons = details.seasons.filter(s => s.season_number > 0);
+            
+            // Load saved progress before building modal
+            const progress = state.showProgress[tvId] || { season: 1, episode: 1 };
+            
+            const modal = document.getElementById('modal');
+            const content = modal.querySelector('.modal-content');
+            
+            content.innerHTML = `
+                <button class="close-button"><span>&times;</span></button>
+                <h2 class="modal-movie-title">${details.name}</h2>
+                <div class="season-select">
+                    <select id="season-select">
+                        ${seasons.map(s => `
+                            <option value="${s.season_number}">Season ${s.season_number}</option>
+                        `).join('')}
+                    </select>
+                    <select id="episode-select"></select>
+                </div>
+                <div id="video-frame">
+                    <iframe frameborder="0" allowfullscreen></iframe>
+                </div>
+                <div id="movie-details">
+                    <div id="movie-description">
+                        <div class="movie-overview">
+                            <p>${details.overview || 'No description available.'}</p>
+                        </div>
+                        <button class="read-more-btn">Read More</button>
+                    </div>
+                    <p id="director">Created by: <b>${(details.created_by || []).map(c => c.name).join(', ') || 'N/A'}</b></p>
+                    <p id="cast">${this.formatCast(details.credits?.cast)}</p>
+                </div>
+            `;
+            // open first so stuff renders right
+            this.openModal();
+
+            // read more stuff
+            setTimeout(() => {
+                const overviewDiv = content.querySelector('.movie-overview');
+                const readMoreBtn = content.querySelector('.read-more-btn');
+                if (overviewDiv.scrollHeight > overviewDiv.clientHeight) {
+                    overviewDiv.parentElement.classList.add('needs-read-more');
+                    readMoreBtn.style.display = 'block';
+                    readMoreBtn.addEventListener('click', () => {
+                        overviewDiv.classList.toggle('expanded');
+                        readMoreBtn.textContent = overviewDiv.classList.contains('expanded') ? 
+                            'Read Less' : 'Read More';
+                    });
+                } else {
+                    readMoreBtn.style.display = 'none';
+                }
+            }, 100); // tiny wait for modal
+
+            content.querySelector('.close-button').addEventListener('click', () => {
+                this.closeModal();
+            });
+
+            // season/episode
+            document.getElementById('season-select').addEventListener('change', (e) => {
+                this.updateEpisodeSelect(tvId, e.target.value);
+            });
+
+            document.getElementById('episode-select').addEventListener('change', (e) => {
+                const season = document.getElementById('season-select').value;
+                const episode = e.target.value;
+                this.updateTVFrame(tvId, season, episode);
+            });
+
+            // set initial season to saved progress
+            const seasonSelect = document.getElementById('season-select');
+            if (progress.season) {
+                seasonSelect.value = progress.season;
+            }
+
+            // load episodes and set to saved episode
+            await this.updateEpisodeSelect(tvId, seasonSelect.value);
+
+            // initialize w saved progress
+            const episodeSelect = document.getElementById('episode-select');
+            if (episodeSelect && episodeSelect.value) {
+                this.updateTVFrame(tvId, seasonSelect.value, episodeSelect.value);
+            }
+
+        } catch (error) {
+            console.error('Error showing TV modal:', error);
+        }
+    },
+
+    // format cast
+    formatCast(cast) {
+        if (!cast || cast.length === 0) return 'Cast: N/A';
+        
+        const mainCast = cast.slice(0, 5);
+        let castHTML = `Cast:<br>${mainCast.map(actor => 
+            `<b>${actor.name}</b> as ${actor.character}`).join(', ')}`;
+        if (cast.length > 5) castHTML += ', and more.';
+        return castHTML;
+    },
+
+    async updateEpisodeSelect(tvId, season) {
+        try {
+            const seasonDetails = await api.getTVSeasonDetails(tvId, season);
+            const episodeSelect = document.getElementById('episode-select');
+            
+            episodeSelect.innerHTML = seasonDetails.episodes.map(ep => `
+                <option value="${ep.episode_number}">Episode ${ep.episode_number}: ${ep.name}</option>
+            `).join('');
+
+            // check if we got a saved episode
+            const progress = state.showProgress[tvId];
+            if (progress && progress.season === parseInt(season)) {
+                episodeSelect.value = progress.episode;
+            }
+            
+            // dont play anything til user clicks!!
+            const videoFrame = document.querySelector('#video-frame iframe');
+            if (videoFrame) {
+                videoFrame.src = '';
+            }
+        } catch (error) {
+            console.error('Error updating episodes:', error);
+        }
+    },
+
+    updateTVFrame(tvId, season, episode) {
+        const server = document.getElementById('server-select').value;
+        // gotta add TV to server name
+        const tvServer = server + 'TV';
+        const embedUrl = videoServers[tvServer](tvId, season, episode);
+        const videoFrame = document.querySelector('#video-frame iframe');
+        if (videoFrame) {
+            videoFrame.src = embedUrl;
+            // save where user left off!!
+            state.showProgress[tvId] = {
+                season: parseInt(season),
+                episode: parseInt(episode)
+            };
+            // SAVE TO STORAGE SO IT REMEMBERS NEXT TIME!!
+            localStorage.setItem('showProgress', JSON.stringify(state.showProgress));
+        }
+    },
+
     // get movie info
     async updateMovieCredits(tmdbID, creditsData = null) {
         try {
@@ -351,53 +608,144 @@ const ui = {
     async handleSearch(query) {
         state.currentSearch = query;
         state.isSearching = true;
+        
+        // hide everything except search results
         document.getElementById('featured-movies').style.display = 'none';
+        document.getElementById('featured-tv').style.display = 'none';
+        document.querySelector('.tabs').style.display = 'none';
+        document.getElementById('section-title').style.display = 'none'; // Hide the featured movies title
+        
         const searchResults = document.getElementById('search-results');
         searchResults.style.display = 'block';
-        document.getElementById('section-title').textContent = 'Search Results';
         
-        // REMOVES OLD QUERY
-        const existingQueryDisplays = document.querySelectorAll('#search-results h3');
-        existingQueryDisplays.forEach(display => display.remove());
-        
-        // NEW QUERY DISPLAY
-        const searchQueryDisplay = document.createElement('h3');
-        searchQueryDisplay.textContent = `Results for "${query}"`;
-        searchQueryDisplay.style.textAlign = 'center';
-        searchQueryDisplay.style.marginBottom = '20px';
-        searchQueryDisplay.style.color = 'var(--dark-secondary)';
-        
+        // CLEAR previous content
         const container = document.getElementById('search-movies-container');
-        container.innerHTML = ''; // CLEAR  previous results
-        container.parentNode.insertBefore(searchQueryDisplay, container);
+        container.innerHTML = '';
+        
+        // search info section
+        const searchInfo = document.getElementById('search-info');
+        searchInfo.style.display = 'block';
+        searchInfo.innerHTML = `
+            <h2>Search Results</h2>
+            <p>Note: If one server doesn't work, try another server in settings.</p>
+            <h1>🦋</h1>
+            <h3>Results for "${query}"</h3>
+        `;
         
         try {
-            const data = await api.searchMovies(query, 1);
-            const container = document.getElementById('search-movies-container');
-            container.innerHTML = '';
+            // search both movies and TV shows
+            const [movieData, tvData] = await Promise.all([
+                api.searchMovies(query, 1),
+                api.searchTV(query, 1)
+            ]);
             
-            if (data.results && data.results.length > 0) {
-                // filters out movies without posters and sort by popularity
-                const validMovies = data.results
-                    .filter(movie => movie.poster_path)
-                    .sort((a, b) => b.popularity - a.popularity);
-
-                validMovies.forEach(movie => {
-                    const movieCard = this.createMovieCard(movie);
-                    if (movieCard) container.appendChild(movieCard);
+            // Add filter controls if not already present
+            if (!document.querySelector('.filter-controls')) {
+                const filterHTML = this.createFilterControls();
+                searchResults.insertAdjacentHTML('afterbegin', filterHTML);
+                
+                // Add event listeners for filters
+                ['type-filter', 'year-filter', 'sort-by'].forEach(id => {
+                    document.getElementById(id).addEventListener('change', () => {
+                        this.updateSearchResults(movieData.results, tvData.results);
+                    });
                 });
-
-                if (validMovies.length === 0) {
-                    container.innerHTML = '<p style="color: white; text-align: center;">No movies found with posters</p>';
-                }
-            } else {
-                container.innerHTML = '<p style="color: white; text-align: center;">No movies found</p>';
             }
+            
+            this.updateSearchResults(movieData.results, tvData.results);
         } catch (error) {
             console.error('Search error:', error);
-            const container = document.getElementById('search-movies-container');
-            container.innerHTML = '<p style="color: white; text-align: center;">Error searching for movies</p>';
+            container.innerHTML = '<p style="color: white; text-align: center;">Error searching for content</p>';
         }
+    },
+
+    updateSearchResults(movies, shows) {
+        const container = document.getElementById('search-movies-container');
+        container.innerHTML = '';
+        
+        const typeFilter = document.getElementById('type-filter').value;
+        const yearFilter = document.getElementById('year-filter').value;
+        const sortBy = document.getElementById('sort-by').value;
+        
+        let results = [];
+        
+        // Apply type filter
+        if (typeFilter === 'all' || typeFilter === 'movie') {
+            results.push(...movies);
+        }
+        if (typeFilter === 'all' || typeFilter === 'tv') {
+            results.push(...shows);
+        }
+        
+        // Apply year filter (now using exact year match if provided)
+        if (yearFilter) {
+            const filterYear = parseInt(yearFilter);
+            results = results.filter(item => {
+                const year = parseInt(item.release_date?.split('-')[0] || 
+                                   item.first_air_date?.split('-')[0] || '0');
+                return year === filterYear;
+            });
+        }
+        
+        // Apply sorting
+        results.sort((a, b) => {
+            switch(sortBy) {
+                case 'popularity':
+                    return b.popularity - a.popularity;
+                case 'year-new':
+                    const dateA = a.release_date || a.first_air_date || '';
+                    const dateB = b.release_date || b.first_air_date || '';
+                    return dateB.localeCompare(dateA);
+                case 'year-old':
+                    const dateC = a.release_date || a.first_air_date || '';
+                    const dateD = b.release_date || b.first_air_date || '';
+                    return dateC.localeCompare(dateD);
+                case 'rating':
+                    return b.vote_average - a.vote_average;
+                case 'name':
+                    const nameA = a.title || a.name || '';
+                    const nameB = b.title || b.name || '';
+                    return nameA.localeCompare(nameB);
+                default:
+                    return 0;
+            }
+        });
+        
+        // Show filtered/sorted results
+        if (results.length > 0) {
+            results.forEach(item => {
+                const card = 'name' in item ? this.createTVCard(item) : this.createMovieCard(item);
+                if (card) container.appendChild(card);
+            });
+        } else {
+            container.innerHTML = '<p style="color: var(--dark-text); text-align: center;">No results match your filters</p>';
+        }
+    },
+
+    // add to ui object
+    createFilterControls() {
+        return `
+            <div class="filter-controls">
+                <select id="type-filter">
+                    <option value="all">All Content</option>
+                    <option value="movie">Movies Only</option>
+                    <option value="tv">TV Shows Only</option>
+                </select>
+                <input type="number" 
+                       id="year-filter" 
+                       placeholder="Filter by Year" 
+                       min="1900" 
+                       max="${new Date().getFullYear() + 1}"
+                       maxlength="4">
+                <select id="sort-by">
+                    <option value="popularity">Sort by Popularity</option>
+                    <option value="year-new">Newest First</option>
+                    <option value="year-old">Oldest First</option>
+                    <option value="rating">Highest Rated</option>
+                    <option value="name">Name (A-Z)</option>
+                </select>
+            </div>
+        `;
     },
 
     // scroll button show/hide
@@ -420,17 +768,37 @@ const ui = {
         } catch (error) {
             console.error('Error loading movie info:', error);
         }
-    },
+    }
 };
 
 // click handlers and stuff
 function setupEventListeners() {
+    document.querySelectorAll('.tab-button').forEach(button => {
+        button.addEventListener('click', () => {
+            document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.content-section').forEach(c => c.classList.remove('active'));
+            button.classList.add('active');
+            const tabId = button.getAttribute('data-tab');
+            document.getElementById(tabId).classList.add('active');
+        });
+    });
+
     document.querySelectorAll('.see-more-button').forEach(button => {
         button.addEventListener('click', async () => {
             const section = button.getAttribute('data-section');
-            if (!section || !api.getMoviesByType[section]) return;
+            if (!section) return;
 
-            const containerId = `${section.replace(/([A-Z])/g, '-$1').toLowerCase()}-movies-container`;
+            // fix container id mapping
+            const containerMap = {
+                'popularTV': 'popular-tv-container',
+                'trendingTV': 'trending-tv-container',
+                'topRatedTV': 'top-rated-tv-container'
+            };
+
+            const containerId = section.includes('TV') ?
+                containerMap[section] :
+                `${section.replace(/([A-Z])/g, '-$1').toLowerCase()}-movies-container`;
+
             if (!state.pages[section]) {
                 state.pages[section] = 1;
             }
@@ -438,17 +806,17 @@ function setupEventListeners() {
             button.disabled = true;
             try {
                 state.pages[section]++;
-                const data = await api.getMoviesByType[section](state.pages[section]);
+                const data = await (section.includes('TV') ? 
+                    api.getShowsByType[section](state.pages[section]) : 
+                    api.getMoviesByType[section](state.pages[section]));
                 ui.updateMovieContainer(data, containerId, state.pages[section]);
             } catch (error) {
-                console.error(`Error loading more ${section} movies:`, error);
-                // Revert the page count since the request failed
+                console.error(`Error loading more ${section} content:`, error);
                 state.pages[section]--;
-                // Show error to user
                 const container = document.getElementById(containerId);
                 const errorMsg = document.createElement('div');
                 errorMsg.className = 'error-message';
-                errorMsg.textContent = 'Failed to load more movies. Please try again later.';
+                errorMsg.textContent = 'Failed to load more content. Please try again later.';
                 container.appendChild(errorMsg);
                 setTimeout(() => errorMsg.remove(), 3000);
             } finally {
@@ -480,9 +848,9 @@ function setupEventListeners() {
         document.getElementById('search-input').value = '';
         document.getElementById('search-results').style.display = 'none';
         document.getElementById('featured-movies').style.display = 'block';
-        document.getElementById('section-title').textContent = 'Featured Movies ⬇️';
-
-        const searchQueryDisplay = document.querySelector('#search-results h3');
+        document.getElementById('featured-tv').style.display = 'block';
+        document.querySelector('.tabs').style.display = 'flex';
+        document.getElementById('section-title').style.display = 'block';
     });
 
     // server switch
@@ -505,18 +873,6 @@ function setupEventListeners() {
     // scroll button visibility
     window.addEventListener('scroll', () => {
         ui.updateScrollButtonVisibility();
-    });
-
-    // home button event listener
-    document.getElementById('home-button').addEventListener('click', async () => {
-        state.isSearching = false;
-        state.currentSearch = '';
-        document.getElementById('search-input').value = '';
-        document.getElementById('section-title').textContent = 'Featured Movies';
-        
-        const searchSection = document.getElementById('search-results');
-        if (searchSection) searchSection.style.display = 'none';
-        document.getElementById('featured-movies').style.display = 'block';
     });
 
     document.querySelector('.close-button').addEventListener('click', () => {
@@ -574,17 +930,44 @@ async function init() {
     ui.resetScrollPositions();
     setupEventListeners();
     
-    const [popularData, trendingData, topRatedData] = await Promise.all([
-        api.getMoviesByType.popular(1),
-        api.getMoviesByType.trending(1),
-        api.getMoviesByType.topRated(1)
-    ]);
+    // initial movie data
+    const activeTab = document.querySelector('.tab-button.active').getAttribute('data-tab');
+    if (activeTab === 'movies') {
+        const [popularData, trendingData, topRatedData] = await Promise.all([
+            api.getMoviesByType.popular(1),
+            api.getMoviesByType.trending(1),
+            api.getMoviesByType.topRated(1)
+        ]);
 
-    await Promise.all([
-        ui.updateMovieContainer(popularData, 'popular-movies-container', 1),
-        ui.updateMovieContainer(trendingData, 'trending-movies-container', 1),
-        ui.updateMovieContainer(topRatedData, 'top-rated-movies-container', 1)
-    ]);
+        await Promise.all([
+            ui.updateMovieContainer(popularData, 'popular-movies-container', 1),
+            ui.updateMovieContainer(trendingData, 'trending-movies-container', 1),
+            ui.updateMovieContainer(topRatedData, 'top-rated-movies-container', 1)
+        ]);
+    }
+    
+    // load TV data when TV tab is clicked for the first time
+    document.querySelector('[data-tab="tv"]').addEventListener('click', async function loadTVData() {
+        const [popularTV, trendingTV, topRatedTV] = await Promise.all([
+            api.getShowsByType.popularTV(1),
+            api.getShowsByType.trendingTV(1),
+            api.getShowsByType.topRatedTV(1)
+        ]);
+
+        await Promise.all([
+            ui.updateMovieContainer(popularTV, 'popular-tv-container', 1),
+            ui.updateMovieContainer(trendingTV, 'trending-tv-container', 1),
+            ui.updateMovieContainer(topRatedTV, 'top-rated-tv-container', 1)
+        ]);
+        
+        this.removeEventListener('click', loadTVData);
+    });
+
+    // load saved show progress
+    const savedProgress = localStorage.getItem('showProgress');
+    if (savedProgress) {
+        state.showProgress = JSON.parse(savedProgress);
+    }
 }
 
 init().catch(console.error);

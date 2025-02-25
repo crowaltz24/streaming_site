@@ -11,41 +11,78 @@
     <!-- <h1>121.6FLIX</h1> -->
     <h3>Watch for free!</h3>
     <div class="search-container">
-        <input type="text" id="search-input" placeholder="Enter movie title...">
+        <input type="text" id="search-input" placeholder="Enter title...">
         <button id="search-button">Search!</button>
         <button id="home-button">Home</button>
     </div>
     <div id="search-results" class="movie-section" style="display: none;">
+        <div id="search-info">
+            <p>Note: If one server doesn't work, try another server in settings.</p>
+            <h1>🦋</h1>
+        </div>
         <div id="search-movies-container" class="movie-scroll-container"></div>
     </div>
-    <p>Note: If one server doesn't work, try another server in settings.</p>
-    <h1>🦋</h1>
-    <div><br><br><br><br></div>
-    <h1 id="section-title">Featured Movies ⬇️</h1>
-    <div id="featured-movies">
-        <section class="movie-section">
-            <div class="section-header">
-                <h2>Trending Movies</h2>
-                <button class="see-more-button" data-section="trending">See More</button>
-            </div>
-            <div id="trending-movies-container" class="movie-scroll-container"></div>
-        </section>
+    <div class="tabs">
+        <button class="tab-button active" data-tab="movies">Movies</button>
+        <button class="tab-button" data-tab="tv">TV Shows</button>
+    </div>
 
-        <section class="movie-section">
-            <div class="section-header">
-                <h2>Popular Movies</h2>
-                <button class="see-more-button" data-section="popular">See More</button>
-            </div>
-            <div id="popular-movies-container" class="movie-scroll-container"></div>
-        </section>
+    <div id="movies" class="content-section active">
+        <h1 id="section-title">Featured Movies ⬇️</h1>
+        <div id="featured-movies">
+            <section class="movie-section">
+                <div class="section-header">
+                    <h2>Trending Movies</h2>
+                    <button class="see-more-button" data-section="trending">See More</button>
+                </div>
+                <div id="trending-movies-container" class="movie-scroll-container"></div>
+            </section>
 
-        <section class="movie-section">
-            <div class="section-header">
-                <h2>Top Rated Movies</h2>
-                <button class="see-more-button" data-section="topRated">See More</button>
-            </div>
-            <div id="top-rated-movies-container" class="movie-scroll-container"></div>
-        </section>
+            <section class="movie-section">
+                <div class="section-header">
+                    <h2>Popular Movies</h2>
+                    <button class="see-more-button" data-section="popular">See More</button>
+                </div>
+                <div id="popular-movies-container" class="movie-scroll-container"></div>
+            </section>
+
+            <section class="movie-section">
+                <div class="section-header">
+                    <h2>Top Rated Movies</h2>
+                    <button class="see-more-button" data-section="topRated">See More</button>
+                </div>
+                <div id="top-rated-movies-container" class="movie-scroll-container"></div>
+            </section>
+        </div>
+    </div>
+
+    <div id="tv" class="content-section">
+        <h1 id="tv-section-title">Featured TV Shows ⬇️</h1>
+        <div id="featured-tv">
+            <section class="movie-section">
+                <div class="section-header">
+                    <h2>Trending TV Shows</h2>
+                    <button class="see-more-button" data-section="trendingTV">See More</button>
+                </div>
+                <div id="trending-tv-container" class="movie-scroll-container"></div>
+            </section>
+
+            <section class="movie-section">
+                <div class="section-header">
+                    <h2>Popular TV Shows</h2>
+                    <button class="see-more-button" data-section="popularTV">See More</button>
+                </div>
+                <div id="popular-tv-container" class="movie-scroll-container"></div>
+            </section>
+
+            <section class="movie-section">
+                <div class="section-header">
+                    <h2>Top Rated TV Shows</h2>
+                    <button class="see-more-button" data-section="topRatedTV">See More</button>
+                </div>
+                <div id="top-rated-tv-container" class="movie-scroll-container"></div>
+            </section>
+        </div>
     </div>
 
     <div class="bottom-controls">
@@ -71,11 +108,11 @@
         <h4 style="margin: 0 0 8px 0;">Settings</h4>
         <p>Server:
         <select id="server-select">
+            <option value="autoembed" selected>AutoEmbed</option>
             <option value="vidsrc1">VidSrc 1</option>
             <option value="vidsrc2">VidSrc 2</option>
             <option value="vidlink">VidLink</option>
             <option value="embed">&ltEmbed&gt</option>
-            <option value="autoembed">AutoEmbed</option>
             <option value="multiembed">MultiEmbed</option>
         </select>
         </p>
