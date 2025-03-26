@@ -1083,3 +1083,42 @@ body.dark-theme .filter-controls input[type="number"] {
         width: 200px;
     }
 }
+
+/* video controls */
+.video-controls {
+    display: flex;
+    justify-content: center;
+    margin: 12px 0;
+}
+
+#next-episode-button {
+    background: var(--gradient);
+    border: 1px solid var(--button-border);
+    color: rgba(0, 0, 0, 0.8);
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 500;
+    width: auto;
+    max-width: 200px;
+    margin: 0 auto;
+    transition: all 0.3s ease;
+}
+
+#next-episode-button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(147,112,219,0.15);
+    background: var(--button-hover);
+}
+
+body.dark-theme #next-episode-button {
+    color: var(--dark-text);
+    border-color: var(--dark-border);
+    background: var(--gradient-dark);
+    border: 1px solid rgba(255,255,255,0.1);
+}
+
+body.dark-theme #next-episode-button:hover {
+    background: var(--button-hover-dark);
+}

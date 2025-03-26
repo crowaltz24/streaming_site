@@ -428,6 +428,7 @@ const ui = {
                     <p id="director">Created by: <b>${(details.created_by || []).map(c => c.name).join(', ') || 'N/A'}</b></p>
                     <p id="cast">${this.formatCast(details.credits?.cast)}</p>
                 </div>
+                <button id="next-episode-button" style="display: none;">Next Episode</button>
             `;
             // open first so stuff renders right
             this.openModal();
@@ -526,15 +527,40 @@ const ui = {
         const tvServer = server + 'TV';
         const embedUrl = videoServers[tvServer](tvId, season, episode);
         const videoFrame = document.querySelector('#video-frame iframe');
+        const nextEpisodeButton = document.getElementById('next-episode-button');
+        
         if (videoFrame) {
             videoFrame.src = embedUrl;
-            // save where user left off!!
             state.showProgress[tvId] = {
                 season: parseInt(season),
                 episode: parseInt(episode)
             };
-            // SAVE TO STORAGE SO IT REMEMBERS NEXT TIME!!
             localStorage.setItem('showProgress', JSON.stringify(state.showProgress));
+            
+            // Show/hide next episode button based on available episodes
+            const episodeSelect = document.getElementById('episode-select');
+            const seasonSelect = document.getElementById('season-select');
+            if (episodeSelect && seasonSelect) {
+                const hasNextEpisode = episode < episodeSelect.options.length || 
+                                     season < seasonSelect.options.length;
+                nextEpisodeButton.style.display = hasNextEpisode ? 'block' : 'none';
+                
+                // Update next episode click handler
+                nextEpisodeButton.onclick = () => {
+                    if (episode < episodeSelect.options.length) {
+                        // Next episode in current season
+                        episodeSelect.value = parseInt(episode) + 1;
+                        ui.updateTVFrame(tvId, season, parseInt(episode) + 1);
+                    } else if (season < seasonSelect.options.length) {
+                        // First episode of next season
+                        seasonSelect.value = parseInt(season) + 1;
+                        ui.updateEpisodeSelect(tvId, parseInt(season) + 1).then(() => {
+                            episodeSelect.value = 1;
+                            ui.updateTVFrame(tvId, parseInt(season) + 1, 1);
+                        });
+                    }
+                };
+            }
         }
     },
 
