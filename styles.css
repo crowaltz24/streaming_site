@@ -662,7 +662,7 @@ body.dark-theme #settings-toggle {
 
 footer {
     margin-top: auto;
-    padding: 20px;
+    padding:12px; 
     background-color: var(--light-surface);
     color: var(--light-text);
     text-align: center;

@@ -346,26 +346,41 @@ const ui = {
     async updateVideoFrame(tmdbID) {
         const server = document.getElementById('server-select').value;
         const embedUrl = videoServers[server](tmdbID);
-        const videoFrame = document.querySelector('#video-frame iframe');
+        
+        // Reset modal content to default movie structure
+        const content = document.querySelector('.modal-content');
+        content.innerHTML = `
+            <button class="close-button"><span>&times;</span></button>
+            <div id="video-frame">
+                <iframe frameborder="0" allowfullscreen></iframe>
+            </div>
+            <div id="movie-details">
+                <div id="movie-description"></div>
+                <p id="director"></p>
+                <p id="cast"></p>
+            </div>
+        `;
+
+        const videoFrame = content.querySelector('#video-frame iframe');
         if (videoFrame) {
             videoFrame.src = embedUrl;
             this.openModal();
         }
         
-        // fetch both movie details and credits simultaneously
         try {
             const [details, credits] = await Promise.all([
                 api.getMovieDetails(tmdbID),
                 api.getMovieCredits(tmdbID)
             ]);
             
+            content.insertAdjacentHTML('afterbegin', `
+                <h2 class="modal-movie-title">${details.title} ${details.release_date ? `(${details.release_date.split('-')[0]})` : ''}</h2>
+            `);
+            
             const descriptionElement = document.getElementById('movie-description');
             if (descriptionElement) {
                 const overview = details.overview || 'No description available.';
-                const year = details.release_date ? `(${details.release_date.split('-')[0]})` : '';
-                
                 descriptionElement.innerHTML = `
-                    <h2 class="modal-movie-title">${details.title} ${year}</h2>
                     <div class="movie-overview">
                         <p>${overview}</p>
                     </div>
@@ -955,6 +970,8 @@ async function init() {
     ui.initializeModal();
     ui.resetScrollPositions();
     setupEventListeners();
+    
+    document.getElementById('search-input').value = '';
     
     // initial movie data
     const activeTab = document.querySelector('.tab-button.active').getAttribute('data-tab');

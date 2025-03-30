@@ -10,16 +10,14 @@
     <img src="/media/logo.png" alt="121.6FLIX" id="logo">
     <!-- <h1>121.6FLIX</h1> -->
     <h3>Watch for free!</h3>
+    <h1>🦋</h1>
     <div class="search-container">
         <input type="text" id="search-input" placeholder="Enter title...">
         <button id="search-button">Search!</button>
         <button id="home-button">Home</button>
     </div>
+    <p>Note: If one server doesn't work, try another server in settings.</p>
     <div id="search-results" class="movie-section" style="display: none;">
-        <div id="search-info">
-            <p>Note: If one server doesn't work, try another server in settings.</p>
-            <h1>🦋</h1>
-        </div>
         <div id="search-movies-container" class="movie-scroll-container"></div>
     </div>
     <div class="tabs">
@@ -111,9 +109,9 @@
         <h4 style="margin: 0 0 8px 0;">Settings</h4>
         <p>Server:
         <select id="server-select">
-            <option value="autoembed" selected>AutoEmbed</option>
-            <option value="vidsrc1">VidSrc 1</option>
+            <option value="vidsrc1" selected>VidSrc 1</option>
             <option value="vidsrc2">VidSrc 2</option>
+            <option value="autoembed">AutoEmbed</option>
             <option value="vidlink">VidLink</option>
             <option value="embed">&ltEmbed&gt</option>
             <option value="multiembed">MultiEmbed</option>
