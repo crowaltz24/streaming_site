@@ -654,9 +654,12 @@ const ui = {
         document.getElementById('featured-movies').style.display = 'none';
         document.getElementById('featured-tv').style.display = 'none';
         document.querySelector('.tabs').style.display = 'none';
-        document.getElementById('section-title').style.display = 'none'; // Hide the featured movies title
+        document.getElementById('section-title').style.display = 'none';
         
-        const searchResults = document.getElementById('search-results');
+        let searchResults = document.getElementById('search-results');
+        if (!searchResults) {
+            searchResults = this.createSearchSection();
+        }
         searchResults.style.display = 'block';
         
         // CLEAR previous content
@@ -679,6 +682,11 @@ const ui = {
                 api.searchMovies(query, 1),
                 api.searchTV(query, 1)
             ]);
+
+            if (movieData.results.length === 0 && tvData.results.length === 0) {
+                container.innerHTML = '<p style="color: var(--dark-text); text-align: center;">No results found</p>';
+                return;
+            }
             
             // Add filter controls if not already present
             if (!document.querySelector('.filter-controls')) {
@@ -696,7 +704,7 @@ const ui = {
             this.updateSearchResults(movieData.results, tvData.results);
         } catch (error) {
             console.error('Search error:', error);
-            container.innerHTML = '<p style="color: white; text-align: center;">Error searching for content</p>';
+            container.innerHTML = '<p style="color: var(--dark-text); text-align: center;">Error searching for content</p>';
         }
     },
 
