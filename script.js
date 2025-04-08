@@ -19,7 +19,11 @@ const state = {
     },
     showProgress: {}, // remember episodes n stuff
     isSearching: false,
-    currentSearch: ''
+    currentSearch: '',
+    searchResults: {  // fix for states
+        movies: [],
+        shows: []
+    }
 };
 
 // video player endpoints
@@ -683,25 +687,27 @@ const ui = {
                 api.searchTV(query, 1)
             ]);
 
+            state.searchResults.movies = movieData.results;
+            state.searchResults.shows = tvData.results;
+
             if (movieData.results.length === 0 && tvData.results.length === 0) {
                 container.innerHTML = '<p style="color: var(--dark-text); text-align: center;">No results found</p>';
                 return;
             }
             
-            // Add filter controls if not already present
+            // filter controls if not already present
             if (!document.querySelector('.filter-controls')) {
                 const filterHTML = this.createFilterControls();
                 searchResults.insertAdjacentHTML('afterbegin', filterHTML);
                 
-                // Add event listeners for filters
                 ['type-filter', 'year-filter', 'sort-by'].forEach(id => {
                     document.getElementById(id).addEventListener('change', () => {
-                        this.updateSearchResults(movieData.results, tvData.results);
+                        this.updateSearchResults(state.searchResults.movies, state.searchResults.shows);
                     });
                 });
             }
             
-            this.updateSearchResults(movieData.results, tvData.results);
+            this.updateSearchResults(state.searchResults.movies, state.searchResults.shows);
         } catch (error) {
             console.error('Search error:', error);
             container.innerHTML = '<p style="color: var(--dark-text); text-align: center;">Error searching for content</p>';
